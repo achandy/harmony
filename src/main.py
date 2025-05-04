@@ -30,6 +30,7 @@ if __name__ == "__main__":
     spotify_client = SpotifyClient()
 
     # Run CLI
+    #TODO make authentication command based
     while True:
         user_input = input("Enter artist name: ").strip()
 
