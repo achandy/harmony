@@ -23,7 +23,7 @@ class StreamingClient:
         self.api_key = api_key
         self.session = requests.Session()
         if api_key:
-            self.session.headers.update({'Authorization': f'Bearer {api_key}'})
+            self.session.headers.update({"Authorization": f"Bearer {api_key}"})
 
     def fetch_song(self, song_id: str):
         """
@@ -70,7 +70,7 @@ class StreamingClient:
         response.raise_for_status()
         return response.json()
 
-    def search(self, query: str, type: str = 'song'):
+    def search(self, query: str, type: str = "song"):
         """
         Searches for songs, albums, or artists matching the query.
 
@@ -82,13 +82,11 @@ class StreamingClient:
             dict: A dictionary containing the search results.
         """
         url = f"{self.base_url}/search"
-        params = {
-            'query': query,
-            'type': type
-        }
+        params = {"query": query, "type": type}
         response = self.session.get(url, params=params)
         response.raise_for_status()
         return response.json()
+
 
 # Example usage:
 # client = MusicStreamClient(base_url='https://api.musicstreaming.com', api_key='your_api_key')
