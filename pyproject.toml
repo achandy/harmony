@@ -20,3 +20,6 @@
 
    [tool.setuptools.packages.find]
    where = ["harmony"]
+
+   [project.scripts]
+   harmony = "harmony.main:main"
