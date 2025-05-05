@@ -22,7 +22,7 @@ def print_artist(spotify_client, artist_name):
         print(f"No artists found with the name: {artist_name}")
 
 
-if __name__ == "__main__":
+def main():
     print("\nWelcome to Harmony.")
     print("Search for an artist by entering their name or type exit to quit.\n")
 
@@ -31,6 +31,9 @@ if __name__ == "__main__":
 
     # Run CLI
     #TODO make authentication command based
+    #TODO add color
+    #TODO add numbered CLI
+    #TODO all music interactions should be through client class calls
     while True:
         user_input = input("Enter artist name: ").strip()
 
@@ -46,3 +49,7 @@ if __name__ == "__main__":
             print_artist(spotify_client=spotify_client, artist_name=user_input)
         except Exception as e:
             print(f"An error occurred while searching for the artist: {e}")
+
+
+if __name__ == "__main__":
+    main()
