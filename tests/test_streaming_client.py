@@ -8,7 +8,9 @@ def streaming_client():
     """
     Fixture to provide a StreamingClient instance with a mock base URL and API key.
     """
-    return StreamingClient(base_url="https://api.musicstreaming.com", api_key="test_api_key")
+    return StreamingClient(
+        base_url="https://api.musicstreaming.com", api_key="test_api_key"
+    )
 
 
 @responses.activate

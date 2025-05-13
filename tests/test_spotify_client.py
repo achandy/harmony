@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 import responses
 from spotify.spotify_client import SpotifyClient
 
+
 @pytest.fixture
 def mock_environment():
     """Fixture to mock environment variables."""
@@ -20,7 +21,10 @@ def mock_environment():
 @pytest.fixture
 def mock_spotify_client(mock_environment):
     """Fixture to mock the SpotifyClient.authenticate method and provide a SpotifyClient instance."""
-    with patch("spotify.spotify_client.SpotifyClient.authenticate", return_value="mock_access_token"):
+    with patch(
+        "spotify.spotify_client.SpotifyClient.authenticate",
+        return_value="mock_access_token",
+    ):
         with patch.object(SpotifyClient, "__init__", lambda x: None):
             client = SpotifyClient()
             yield client
@@ -45,7 +49,9 @@ def test_missing_client_credentials(mock_environment):
 
     with patch.object(SpotifyClient, "__init__", lambda x: None):
         client = SpotifyClient()
-        client._get_client_credentials = MagicMock(side_effect=ValueError("Missing client credentials"))
+        client._get_client_credentials = MagicMock(
+            side_effect=ValueError("Missing client credentials")
+        )
 
         with pytest.raises(ValueError, match="Missing client credentials"):
             client._get_client_credentials()
@@ -54,7 +60,9 @@ def test_missing_client_credentials(mock_environment):
 @patch("spotify.spotify_client.webbrowser.open")
 @patch("spotify.spotify_client.HTTPServer")
 @patch("spotify.spotify_client.BaseHTTPRequestHandler")
-def test_request_authorization_code(mock_handler, mock_http, mock_browser, mock_spotify_client):
+def test_request_authorization_code(
+    mock_handler, mock_http, mock_browser, mock_spotify_client
+):
     """
     Test SpotifyClient._request_authorization_code() method.
     Ensure it correctly handles browser redirect and captures an authorization code.
