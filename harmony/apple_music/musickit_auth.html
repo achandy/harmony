@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In with Apple Music</title>
+    <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js"></script>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #141E30, #243B55); /* Dark modern gradient */
+            color: #FFFFFF;
+        }
+
+        /* Header styling */
+        h1 {
+            font-size: 1.8rem;
+            color: #FFF;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Apple Music logo styling */
+        .logo-container {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Authorization button styling */
+        #authorize {
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 25px;
+            background: #FF2D55; /* Apple Music’s red-pink color */
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #authorize:hover {
+            background: #E0264B; /* Slightly darker for hover effect */
+            transform: scale(1.05); /* Add a slight hover scaling effect */
+        }
+
+        #authorize:focus {
+            outline: none;
+            box-shadow: 0 0 8px #FF2D55;
+        }
+
+        /* Footer text */
+        p {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #CCCCCC;
+        }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Configure MusicKit with the Developer Token
+        MusicKit.configure({
+            developerToken: '{{DEVELOPER_TOKEN}}',
+            app: {
+                name: 'YourAppName',
+                build: '1.0.0'
+            }
+        });
+
+        // Authorize the user and send the Music User Token to the server
+        const authorizeButton = document.getElementById('authorize');
+        authorizeButton.addEventListener('click', () => {
+            MusicKit.getInstance().authorize().then((token) => {
+                console.log('Music User Token:', token);
+
+                // Send the token to the server
+                fetch(`/callback?musicUserToken=${encodeURIComponent(token)}`)
+                    .then((response) => {
+                        if (response.ok) {
+                            console.log('Token successfully sent to the server');
+                            // Close the window only after successful processing
+                            window.close();
+                        } else {
+                            console.error('Failed to send token to the server:', response.statusText);
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Error during token submission:', err);
+                    });
+            }).catch((err) => {
+                console.error('Authorization failed:', err);
+            });
+        });
+    });
+</script>
+</head>
+<body>
+    <!-- Apple Music Logo -->
+    <div class="logo-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/1920px-Apple_Music_icon.svg.png" alt="Apple Music Logo">
+    </div>
+
+    <!-- Heading -->
+    <h1>Sign In with Apple Music</h1>
+
+    <!-- Button to authorize Apple Music -->
+    <button id="authorize">Authorize Apple Music</button>
+
+    <!-- Footer Text -->
+    <p>By signing in, you agree to the terms and conditions of using Apple Music with this app.</p>
+</body>
+</html>

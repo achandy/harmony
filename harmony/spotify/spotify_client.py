@@ -29,17 +29,16 @@ class SpotifyClient(StreamingClient):
         Args:
             base_url (str): The base URL for the Spotify API. Default is Spotify's API URL.
         """
-        access_token = self.authenticate()
+        self.access_token = self._authenticate()
 
-        super().__init__(base_url)
-        self.session.headers.update({"Authorization": f"Bearer {access_token}"})
+        super().__init__(base_url=base_url, api_key=self.access_token)
 
-    def authenticate(self) -> str:
+    def _authenticate(self) -> str:
         """
         Handle Spotify's authorization code flow to obtain the access token.
 
         Returns:
-            str: The access token needed to authenticate API requests.
+            str: The authenticated music user token.
         """
         # Step 1: Get Client Credentials
         client_id, client_secret = self._get_client_credentials()
@@ -107,7 +106,25 @@ class SpotifyClient(StreamingClient):
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(
-                        b"Authorization successful! You can close this window."
+                        b"""
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Authorization Complete</title>
+                            <script>
+                                window.onload = function() {
+                                    setTimeout(function() {
+                                        window.close(); // Close the authorization window after a delay
+                                    }, 3000); // 3000ms = 3 seconds delay
+                                };
+                            </script>
+                        </head>
+                        <body>
+                            <h1>Authorization successful!</h1>
+                            <p>This window will close automatically in a few seconds.</p>
+                        </body>
+                        </html>
+                        """
                     )
                 else:
                     self.server.authorization_code = None
