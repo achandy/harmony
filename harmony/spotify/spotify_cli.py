@@ -62,21 +62,6 @@ class SpotifyCLI:
             except ValueError:
                 console.print("[bold red]Please enter a valid number.[/bold red]")
 
-    def search_artist(self):
-        """
-        Search for an artist using the Spotify API client.
-        """
-        artist_name = console.input("Enter the artist's name to search: ")
-        if artist_name.strip():
-            console.print(f"Searching for {artist_name} on Spotify...")
-            try:
-                results = self.spotify_client.search_artist(artist_name)
-                console.print(f"Search Results: {results}")
-            except Exception as e:
-                console.print(f"[bold red]Error:[/bold red] {e}")
-        else:
-            console.print("[bold red]Artist name cannot be empty.[/bold red]")
-
     @staticmethod
     def return_to_main_menu():
         """
