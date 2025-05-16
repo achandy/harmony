@@ -4,7 +4,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/your-username/harmony-cli)](https://github.com/achandy/harmony/commits/main)
 
 
-![Harmony Logo](Harmony-logo.png)
+![Harmony Logo](harmony-logo.png)
 
 **Harmony** is a CLI application that allows users to interact with Spotify and Apple Music APIs for various tasks, including authentication, exploring, and managing music data.
 
