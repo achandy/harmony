@@ -6,7 +6,7 @@ import threading
 from urllib.parse import parse_qs
 import webbrowser
 from dotenv import load_dotenv
-from streaming_client import StreamingClient
+from harmony.streaming_client import StreamingClient
 
 load_dotenv()
 

@@ -19,7 +19,8 @@ classifiers = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["harmony"]
+where = ["."]
+include = ["harmony*"]
 
 [project.scripts]
-harmony = "main:main"
+harmony = "harmony.main:main"

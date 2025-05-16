@@ -4,7 +4,7 @@ import webbrowser
 from urllib.parse import urlencode, urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import load_dotenv
-from streaming_client import StreamingClient
+from harmony.streaming_client import StreamingClient
 
 load_dotenv()
 

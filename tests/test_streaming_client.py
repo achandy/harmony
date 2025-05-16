@@ -1,6 +1,6 @@
 import pytest
 import responses
-from streaming_client import StreamingClient
+from harmony.streaming_client import StreamingClient
 
 
 @pytest.fixture

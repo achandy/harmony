@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import jwt
 import time
-from apple_music.apple_music_client import AppleMusicClient
+from harmony.apple_music.apple_music_client import AppleMusicClient
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def mock_environment():
         "APPLE_PRIVATE_KEY": "test_private_key",
     }
 
-    with patch("apple_music.apple_music_client.os.getenv") as mock_getenv:
+    with patch("harmony.apple_music.apple_music_client.os.getenv") as mock_getenv:
         # Use the dictionary's get() method for dynamic access to mock environment variables
         mock_getenv.side_effect = mock_env.get
         yield mock_getenv
@@ -25,7 +25,7 @@ def mock_apple_music_client(mock_environment):
     """Fixture to mock the AppleMusicClient initialization."""
     """Fixture to mock the SpotifyClient.__authenticate method and provide a SpotifyClient instance."""
     with patch(
-        "apple_music.apple_music_client.AppleMusicClient._authenticate",
+        "harmony.apple_music.apple_music_client.AppleMusicClient._authenticate",
         return_value="mock_user_token",
     ):
         with patch.object(AppleMusicClient, "__init__", lambda x: None):
@@ -63,7 +63,7 @@ def test_missing_developer_token_env_vars():
     """
     Test that AppleMusicClient._get_developer_token() raises an error if env vars are missing.
     """
-    with patch("apple_music.apple_music_client.os.getenv", return_value=None):
+    with patch("harmony.apple_music.apple_music_client.os.getenv", return_value=None):
         with pytest.raises(
             ValueError,
             match="APPLE_KEY_ID, APPLE_TEAM_ID, and APPLE_PRIVATE_KEY must be set",

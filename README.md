@@ -31,21 +31,13 @@
    cd harmony
    ```
 
-2. Install dependencies, including `pytoml`:
+2. Install dependencies and application
 
    ```bash
-   pip install -r requirements.txt
+   make install
    ```
 
-3. Make sure you have properly configured the `pyproject.toml` file, as it sets up the project environment and dependencies. To install your Harmony CLI tool as a command-line application, run:
-
-   ```bash
-   pip install .
-   ```
-
-   This will set up the application for direct execution and add the `harmony` command to your PATH.
-
-4. Create a `.env` file in the root directory and provide the required environment variables:
+3. Create a `.env` file in the root directory and provide the required environment variables:
 
    - For Spotify:
      - `SPOTIFY_CLIENT_ID`
@@ -65,6 +57,10 @@ Run the Harmony CLI directly using:
    ```bash
    harmony
    ```
+or
+   ```bash
+   make run
+   ```
 
 The main menu will appear:
    - Authenticate with Spotify or Apple Music for session-specific tools.
@@ -72,6 +68,12 @@ The main menu will appear:
 
 ---
 
+## Testing
+
+   ```bash
+   make test
+   ```
+---
 ## Prerequisites
 
 - **Python**: Requires Python 3.7 or higher.

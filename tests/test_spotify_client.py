@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import responses
-from spotify.spotify_client import SpotifyClient
+from harmony.spotify.spotify_client import SpotifyClient
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def mock_environment():
         "SPOTIFY_CLIENT_SECRET": "test_client_secret",
     }
 
-    with patch("spotify.spotify_client.os.getenv") as mock_getenv:
+    with patch("harmony.spotify.spotify_client.os.getenv") as mock_getenv:
         # Use the dictionary's get() method for dynamic access to mock environment variables
         mock_getenv.side_effect = mock_env.get
         yield mock_getenv
@@ -20,9 +20,9 @@ def mock_environment():
 
 @pytest.fixture
 def mock_spotify_client(mock_environment):
-    """Fixture to mock the SpotifyClient.authenticate method and provide a SpotifyClient instance."""
+    """Fixture to mock the SpotifyClient._authenticate method and provide a SpotifyClient instance."""
     with patch(
-        "spotify.spotify_client.SpotifyClient.authenticate",
+        "harmony.spotify.spotify_client.SpotifyClient._authenticate",
         return_value="mock_access_token",
     ):
         with patch.object(SpotifyClient, "__init__", lambda x: None):
@@ -57,9 +57,9 @@ def test_missing_client_credentials(mock_environment):
             client._get_client_credentials()
 
 
-@patch("spotify.spotify_client.webbrowser.open")
-@patch("spotify.spotify_client.HTTPServer")
-@patch("spotify.spotify_client.BaseHTTPRequestHandler")
+@patch("harmony.spotify.spotify_client.webbrowser.open")
+@patch("harmony.spotify.spotify_client.HTTPServer")
+@patch("harmony.spotify.spotify_client.BaseHTTPRequestHandler")
 def test_request_authorization_code(
     mock_handler, mock_http, mock_browser, mock_spotify_client
 ):

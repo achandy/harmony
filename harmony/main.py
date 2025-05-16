@@ -1,8 +1,8 @@
 from rich.console import Console
-from spotify.spotify_client import SpotifyClient
-from spotify.spotify_cli import SpotifyCLI
-from apple_music.apple_music_client import AppleMusicClient
-from apple_music.apple_music_cli import AppleMusicCLI
+from harmony.spotify.spotify_client import SpotifyClient
+from harmony.spotify.spotify_cli import SpotifyCLI
+from harmony.apple_music.apple_music_client import AppleMusicClient
+from harmony.apple_music.apple_music_cli import AppleMusicCLI
 
 console = Console()
 
