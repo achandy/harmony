@@ -51,7 +51,6 @@ class SpotifyClient(StreamingClient):
             authorization_code, client_id, client_secret
         )
 
-        print("Authentication successful!")
         return access_token
 
     def _get_client_credentials(self) -> tuple[str, str]:

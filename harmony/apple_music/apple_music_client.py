@@ -115,7 +115,6 @@ class AppleMusicClient(StreamingClient):
         httpd.shutdown()
         thread.join()
 
-        print("Authentication successful!")
         return authorization_code
 
     def _get_developer_token(self) -> str:
