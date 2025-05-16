@@ -1,7 +1,7 @@
 [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub Repo Size](https://img.shields.io/github/repo-size/your-username/harmony-cli)](https://github.com/achandy/harmony)
-[![Last Commit](https://img.shields.io/github/last-commit/your-username/harmony-cli)](https://github.com/achandy/harmony/commits/main)
+[![GitHub Repo Size](https://img.shields.io/github/repo-size/achandy/harmony)](https://github.com/achandy/harmony)
+[![Last Commit](https://img.shields.io/github/last-commit/achandy/harmony)](https://github.com/achandy/harmony/commits/main)
 
 
 ![Harmony Logo](harmony-logo.png)
