@@ -1,14 +1,5 @@
 from rich.console import Console
 
-console = Console()
-
-apple_music_ascii = r"""
- ▗▄▖ ▗▄▄▖ ▗▄▄▖ ▗▖   ▗▄▄▄▖    ▗▖  ▗▖▗▖ ▗▖ ▗▄▄▖▗▄▄▄▖ ▗▄▄▖    
-▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌       ▐▛▚▞▜▌▐▌ ▐▌▐▌     █  ▐▌       
-▐▛▀▜▌▐▛▀▘ ▐▛▀▘ ▐▌   ▐▛▀▀▘    ▐▌  ▐▌▐▌ ▐▌ ▝▀▚▖  █  ▐▌       
-▐▌ ▐▌▐▌   ▐▌   ▐▙▄▄▖▐▙▄▄▖    ▐▌  ▐▌▝▚▄▞▘▗▄▄▞▘▗▄█▄▖▝▚▄▄▖                                                     
-    """
-
 
 class AppleMusicCLI:
     """
@@ -23,6 +14,13 @@ class AppleMusicCLI:
         Args:
             apple_music_client: An authenticated instance of AppleMusicClient.
         """
+        self.apple_music_ascii = r"""
+         ▗▄▖ ▗▄▄▖ ▗▄▄▖ ▗▖   ▗▄▄▄▖    ▗▖  ▗▖▗▖ ▗▖ ▗▄▄▖▗▄▄▄▖ ▗▄▄▖    
+        ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌       ▐▛▚▞▜▌▐▌ ▐▌▐▌     █  ▐▌       
+        ▐▛▀▜▌▐▛▀▘ ▐▛▀▘ ▐▌   ▐▛▀▀▘    ▐▌  ▐▌▐▌ ▐▌ ▝▀▚▖  █  ▐▌       
+        ▐▌ ▐▌▐▌   ▐▌   ▐▙▄▄▖▐▙▄▄▖    ▐▌  ▐▌▝▚▄▞▘▗▄▄▞▘▗▄█▄▖▝▚▄▄▖                                                     
+            """
+        self.console = Console()
         self.apple_music_client = apple_music_client
 
     def display_menu(self):
@@ -30,46 +28,69 @@ class AppleMusicCLI:
         Display the Apple Music tools submenu and process user input.
         """
         menu_options = [
-            ("Return to Main Menu", self.return_to_main_menu),
-            ("Exit", self.exit_program),
+            ("Top Albums", self._show_top_albums),
+            ("Return to Main Menu", lambda: "return"),
+            ("Exit", lambda: "exit"),
         ]
 
         while True:
-            console.print("\n\n[red]" + apple_music_ascii + "[/red]")
-            console.print("[red]Apple Music Menu:[/red]")
+            self.console.print("\n\n[red]" + self.apple_music_ascii + "[/red]")
+            self.console.print("[red]Apple Music Menu:[/red]")
 
-            # Display menu items
             for index, (label, _) in enumerate(menu_options, start=1):
-                console.print(f"[red]{index}[/red]. {label}")
+                self.console.print(f"[red]{index}[/red]. {label}")
 
-            # Get user choice
             try:
-                choice = int(console.input("Enter your choice: "))
+                choice = int(self.console.input("Enter your choice: "))
                 if 1 <= choice <= len(menu_options):
                     _, action = menu_options[choice - 1]
-                    if action == self.return_to_main_menu:
-                        action()
-                        break
-                    action()
+                    result = action()
+                    if result == "return":
+                        self.console.print(
+                            "[bold magenta]Returning to the main menu...[/bold magenta]"
+                        )
+                        return
+                    elif result == "exit":
+                        self.console.print("[bold magenta]Goodbye![/bold magenta]")
+                        exit(0)
                 else:
-                    console.print(
+                    self.console.print(
                         "[bold red]Invalid choice. Please select a valid option.[/bold red]"
                     )
             except ValueError:
-                console.print("[bold red]Please enter a valid number.[/bold red]")
+                self.console.print("[bold red]Please enter a valid number.[/bold red]")
 
-    @staticmethod
-    def return_to_main_menu():
+    def _show_top_albums(self):
         """
-        Return to the main menu (breaking out of the loop).
+        Fetch and display the user's heavy rotation albums.
         """
-        console.print("[bold magenta]Returning to the main menu...[/bold magenta]")
-        return
+        try:
+            # Heavy Rotation is what Apple Music refers to as top recent albums
+            heavy_rotation_data = self.apple_music_client.get_heavy_rotation(limit=10)
 
-    @staticmethod
-    def exit_program():
+            if not heavy_rotation_data:
+                self.console.print(
+                    "[bold yellow]No heavy rotation albums found.[/bold yellow]"
+                )
+                self._pause_for_user()
+                return
+
+            # Display album names and artist names
+            self.console.print("\n[red]Your Heavy Rotation Albums:[/red]")
+            for index, album in enumerate(heavy_rotation_data, start=1):
+                album_name = album.get("name", "Unknown Album")
+                artist_name = album.get("artist", "Unknown Artist")
+                self.console.print(f"[red]{index}[/red]. {album_name} by {artist_name}")
+
+        except Exception as e:
+            self.console.print(
+                f"[bold red]Failed to fetch heavy rotation data: {str(e)}[/bold red]"
+            )
+
+        self._pause_for_user()
+
+    def _pause_for_user(self):
         """
-        Exit the program entirely.
+        Pauses execution to allow the user to review the content by pressing any key.
         """
-        console.print("[bold magenta]Goodbye![/bold magenta]")
-        exit(0)
+        self.console.input("\n[red]Press any key to return to the menu...[/red]")

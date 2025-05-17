@@ -146,3 +146,32 @@ class AppleMusicClient(StreamingClient):
         return jwt.encode(
             payload, private_key, algorithm=self.JWT_ALGORITHM, headers=header
         )
+
+    def get_heavy_rotation(self, limit: int = 10) -> list[dict]:
+        """
+        Fetch the user's heavy rotation albums.
+
+        Args:
+            limit (int): The number of items to retrieve (default: 10).
+
+        Returns:
+            list[dict]: A list of albums with their names and artist names.
+        """
+        endpoint = f"{self.base_url}/me/history/heavy-rotation"
+        params = {"limit": limit}
+
+        # Make the API request
+        response = self.session.get(endpoint, params=params)
+        if response.status_code != 200:
+            raise Exception(f"Failed to get heavy rotation data: {response.text}")
+
+        # Parse and filter library-albums
+        items = response.json().get("data", [])
+        return [
+            {
+                "name": item["attributes"].get("name", "Unknown Album"),
+                "artist": item["attributes"].get("artistName", "Unknown Artist"),
+            }
+            for item in items
+            if item["type"] == "library-albums"
+        ]
