@@ -84,6 +84,7 @@ def test_client_initialization(mock_apple_music_client):
     assert mock_apple_music_client.developer_token == "mock_developer_token"
     assert mock_apple_music_client.user_token == "mock_user_token"
 
+
 def test_get_heavy_rotation(mock_apple_music_client):
     """
     Test that get_heavy_rotation fetches and parses heavy rotation albums correctly.
@@ -94,25 +95,16 @@ def test_get_heavy_rotation(mock_apple_music_client):
         "data": [
             {
                 "type": "library-albums",
-                "attributes": {
-                    "name": "Album 1",
-                    "artistName": "Artist 1"
-                }
+                "attributes": {"name": "Album 1", "artistName": "Artist 1"},
             },
             {
                 "type": "library-albums",
-                "attributes": {
-                    "name": "Album 2",
-                    "artistName": "Artist 2"
-                }
+                "attributes": {"name": "Album 2", "artistName": "Artist 2"},
             },
             {
                 "type": "other-type",  # This should be filtered out
-                "attributes": {
-                    "name": "Unknown",
-                    "artistName": "Unknown"
-                }
-            }
+                "attributes": {"name": "Unknown", "artistName": "Unknown"},
+            },
         ]
     }
     mock_apple_music_client.session.get.return_value = mock_response
@@ -122,16 +114,20 @@ def test_get_heavy_rotation(mock_apple_music_client):
 
     assert result == [
         {"name": "Album 1", "artist": "Artist 1"},
-        {"name": "Album 2", "artist": "Artist 2"}
+        {"name": "Album 2", "artist": "Artist 2"},
     ]
     mock_apple_music_client.session.get.assert_called_once_with(
         f"{mock_apple_music_client.base_url}/me/history/heavy-rotation",
-        params={"limit": 10}
+        params={"limit": 10},
     )
 
     # Test with a different limit
     result_with_limit = mock_apple_music_client.get_heavy_rotation(limit=5)
+    assert result_with_limit == [
+        {"name": "Album 1", "artist": "Artist 1"},
+        {"name": "Album 2", "artist": "Artist 2"},
+    ]
     mock_apple_music_client.session.get.assert_called_with(
         f"{mock_apple_music_client.base_url}/me/history/heavy-rotation",
-        params={"limit": 5}
+        params={"limit": 5},
     )

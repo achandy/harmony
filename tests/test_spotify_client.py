@@ -125,6 +125,7 @@ def test_exchange_code_for_token_failure(mock_spotify_client):
             "test_auth_code", "test_client_id", "test_client_secret"
         )
 
+
 @responses.activate
 def test_get_top_tracks_success(mock_spotify_client):
     """
