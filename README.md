@@ -37,7 +37,15 @@
    make install
    ```
 
-3. Create a `.env` file in the root directory and provide the required environment variables:
+3. Set up a developer account
+
+- **Spotify** *(Free)*  
+  [Getting Started with Spotify Web API](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)
+
+- **Apple Music** *(Paid Subscription Required)*  
+  [Create a Private Key for Apple Music API](https://developer.apple.com/help/account/keys/create-a-private-key/)
+
+4. Create a `.env` file in the root directory and provide the required environment variables:
 
    - For Spotify:
      - `SPOTIFY_CLIENT_ID`
@@ -47,6 +55,7 @@
      - `APPLE_KEY_ID`
      - `APPLE_TEAM_ID`
      - `APPLE_PRIVATE_KEY`
+
 
 ---
 

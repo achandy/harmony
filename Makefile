@@ -10,7 +10,7 @@ format:
 	black .
 
 lint:
-	flake8 .
+	ruff check . --fix
 
 test:
 	pytest

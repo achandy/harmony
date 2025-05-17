@@ -27,6 +27,8 @@ def mock_spotify_client(mock_environment):
     ):
         with patch.object(SpotifyClient, "__init__", lambda x: None):
             client = SpotifyClient()
+            client.base_url = "https://mock.api.spotify.com/v1"
+            client.headers = {"Authorization": "Bearer mock_access_token"}
             yield client
 
 
@@ -122,3 +124,88 @@ def test_exchange_code_for_token_failure(mock_spotify_client):
         mock_spotify_client._exchange_code_for_token(
             "test_auth_code", "test_client_id", "test_client_secret"
         )
+
+@responses.activate
+def test_get_top_tracks_success(mock_spotify_client):
+    """
+    Test SpotifyClient.get_top() method for successfully fetching the top tracks.
+    """
+    # Mock a successful response for the top tracks
+    responses.add(
+        responses.GET,
+        f"{mock_spotify_client.base_url}/me/top/tracks",
+        json={
+            "items": [
+                {
+                    "name": "Track 1",
+                    "album": {"name": "Album 1"},
+                    "artists": [{"name": "Artist 1"}],
+                },
+                {
+                    "name": "Track 2",
+                    "album": {"name": "Album 2"},
+                    "artists": [{"name": "Artist 2"}],
+                },
+            ]
+        },
+        status=200,
+    )
+
+    # Call the method under test
+    result = mock_spotify_client.get_top("tracks", limit=2, term="medium_term")
+
+    # Assert the output is correctly parsed
+    assert len(result) == 2
+    assert result[0]["name"] == "Track 1"
+    assert result[0]["album"]["name"] == "Album 1"
+    assert result[0]["artists"][0]["name"] == "Artist 1"
+    assert result[1]["name"] == "Track 2"
+    assert result[1]["album"]["name"] == "Album 2"
+    assert result[1]["artists"][0]["name"] == "Artist 2"
+
+
+@responses.activate
+def test_get_top_artists_success(mock_spotify_client):
+    """
+    Test SpotifyClient.get_top() method for successfully fetching the top artists.
+    """
+    # Mock a successful response for the top artists
+    responses.add(
+        responses.GET,
+        f"{mock_spotify_client.base_url}/me/top/artists",
+        json={
+            "items": [
+                {"name": "Artist 1", "genres": ["pop", "rock"]},
+                {"name": "Artist 2", "genres": ["hip hop"]},
+            ]
+        },
+        status=200,
+    )
+
+    # Call the method under test
+    result = mock_spotify_client.get_top("artists", limit=2, term="long_term")
+
+    # Assert the output is correctly parsed
+    assert len(result) == 2
+    assert result[0]["name"] == "Artist 1"
+    assert result[0]["genres"] == ["pop", "rock"]
+    assert result[1]["name"] == "Artist 2"
+    assert result[1]["genres"] == ["hip hop"]
+
+
+@responses.activate
+def test_get_top_invalid_type(mock_spotify_client):
+    """
+    Test SpotifyClient.get_top() method for an invalid top_type argument.
+    """
+    with pytest.raises(ValueError, match="Invalid value for top_type"):
+        mock_spotify_client.get_top("albums", limit=5, term="medium_term")
+
+
+@responses.activate
+def test_get_top_invalid_term(mock_spotify_client):
+    """
+    Test SpotifyClient.get_top() method for an invalid term argument.
+    """
+    with pytest.raises(ValueError, match="Invalid value for term"):
+        mock_spotify_client.get_top("tracks", limit=5, term="invalid_term")

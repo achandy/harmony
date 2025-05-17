@@ -30,6 +30,9 @@ class SpotifyClient(StreamingClient):
             base_url (str): The base URL for the Spotify API. Default is Spotify's API URL.
         """
         self.access_token = self._authenticate()
+        self.headers = {
+            "Authorization": f"Bearer {self.access_token}",
+        }
 
         super().__init__(base_url=base_url, api_key=self.access_token)
 
@@ -53,7 +56,8 @@ class SpotifyClient(StreamingClient):
 
         return access_token
 
-    def _get_client_credentials(self) -> tuple[str, str]:
+    @staticmethod
+    def _get_client_credentials() -> tuple[str, str]:
         """
         Retrieve client credentials from the environment.
 
@@ -85,7 +89,7 @@ class SpotifyClient(StreamingClient):
             "client_id": client_id,
             "response_type": "code",
             "redirect_uri": self.REDIRECT_URI,
-            "scope": "user-read-private",
+            "scope": "user-read-private user-top-read user-read-email",
         }
         auth_url = f"{self.AUTH_URL}?{urlencode(auth_params)}"
 
@@ -177,3 +181,39 @@ class SpotifyClient(StreamingClient):
             raise Exception("Access token is missing in the response.")
 
         return access_token
+
+    def get_top(
+        self, top_type: str, limit: int = 10, term: str = "medium_term"
+    ) -> list[dict]:
+        """
+        Get the user's top objects (artists or tracks) from Spotify for a specific time range.
+
+        Args:
+            top_type (str): The type of top object to retrieve ('artists' or 'tracks').
+            limit (int): Number of objects to retrieve (default is 10).
+            term (str): The time range for top items ('short_term', 'medium_term', or 'long_term').
+
+        Returns:
+            list[dict]: A list of the top objects with their details.
+        """
+        if top_type not in {"artists", "tracks"}:
+            raise ValueError(
+                "Invalid value for top_type. Expected 'artists' or 'tracks'."
+            )
+
+        if term not in {"short_term", "medium_term", "long_term"}:
+            raise ValueError(
+                "Invalid value for term. Expected 'short_term', 'medium_term', or 'long_term'."
+            )
+
+        endpoint = f"{self.base_url}/me/top/{top_type}"
+        params = {
+            "limit": limit,
+            "time_range": term,
+        }
+
+        response = requests.get(endpoint, headers=self.headers, params=params)
+        if response.status_code != 200:
+            raise Exception(f"Failed to get top {top_type}: {response.text}")
+
+        return response.json().get("items", [])
