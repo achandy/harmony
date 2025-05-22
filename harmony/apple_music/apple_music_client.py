@@ -175,3 +175,62 @@ class AppleMusicClient(StreamingClient):
             for item in items
             if item["type"] == "library-albums"
         ]
+
+    def get_user_playlists(self, limit: int = 25) -> list[dict]:
+        """
+        Fetch the user's playlists.
+
+        Args:
+            limit (int): Maximum number of playlists to retrieve (default: 25).
+
+        Returns:
+            list[dict]: A list of playlists with their names and IDs.
+        """
+        endpoint = f"{self.base_url}/me/library/playlists"
+        params = {"limit": limit}
+
+        # Make the API request
+        response = self.session.get(endpoint, params=params)
+        if response.status_code != 200:
+            raise Exception(f"Failed to get playlists: {response.text}")
+
+        # Structure output playlists
+        items = response.json().get("data", [])
+        return [
+            {
+                "id": playlist["id"],
+                "name": playlist["attributes"].get("name", "Unknown Playlist"),
+            }
+            for playlist in items
+        ]
+
+    def get_playlist_tracks(self, playlist_id: str, limit: int = 100) -> list[dict]:
+        """
+        Fetch the tracks from a specific playlist.
+
+        Args:
+            playlist_id (str): The Apple Music ID of the playlist.
+            limit (int): Maximum number of tracks (default: 100).
+
+        Returns:
+            list[dict]: A list of tracks with their names and artist names.
+        """
+        endpoint = f"{self.base_url}/me/library/playlists/{playlist_id}/tracks"
+        params = {"limit": limit}
+
+        # Make the API request
+        response = self.session.get(endpoint, params=params)
+        if response.status_code != 200:
+            raise Exception(
+                f"Failed to get tracks for playlist {playlist_id}: {response.text}"
+            )
+
+        # Structure output tracks
+        items = response.json().get("data", [])
+        return [
+            {
+                "name": track["attributes"].get("name", "Unknown Track"),
+                "artist": track["attributes"].get("artistName", "Unknown Artist"),
+            }
+            for track in items
+        ]

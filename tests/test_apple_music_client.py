@@ -131,3 +131,73 @@ def test_get_heavy_rotation(mock_apple_music_client):
         f"{mock_apple_music_client.base_url}/me/history/heavy-rotation",
         params={"limit": 5},
     )
+
+
+def test_get_user_playlists(mock_apple_music_client):
+    """
+    Test that get_user_playlists fetches and parses playlists correctly.
+    """
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "data": [
+            {
+                "id": "playlist1",
+                "attributes": {"name": "My Playlist 1"},
+            },
+            {
+                "id": "playlist2",
+                "attributes": {},  # missing name, should default
+            },
+        ]
+    }
+    mock_apple_music_client.session.get.return_value = mock_response
+
+    result = mock_apple_music_client.get_user_playlists(limit=2)
+
+    assert result == [
+        {"id": "playlist1", "name": "My Playlist 1"},
+        {"id": "playlist2", "name": "Unknown Playlist"},
+    ]
+
+    mock_apple_music_client.session.get.assert_called_with(
+        f"{mock_apple_music_client.base_url}/me/library/playlists",
+        params={"limit": 2},
+    )
+
+
+def test_get_playlist_tracks(mock_apple_music_client):
+    """
+    Test that get_playlist_tracks fetches and parses playlist tracks correctly.
+    """
+    playlist_id = "abcd1234"
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "data": [
+            {
+                "attributes": {
+                    "name": "Song A",
+                    "artistName": "Artist A",
+                }
+            },
+            {
+                "attributes": {},  # Missing name and artistName
+            },
+        ]
+    }
+    mock_apple_music_client.session.get.return_value = mock_response
+
+    result = mock_apple_music_client.get_playlist_tracks(
+        playlist_id=playlist_id, limit=2
+    )
+
+    assert result == [
+        {"name": "Song A", "artist": "Artist A"},
+        {"name": "Unknown Track", "artist": "Unknown Artist"},
+    ]
+
+    mock_apple_music_client.session.get.assert_called_with(
+        f"{mock_apple_music_client.base_url}/me/library/playlists/{playlist_id}/tracks",
+        params={"limit": 2},
+    )
