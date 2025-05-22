@@ -1,5 +1,4 @@
 import os
-import requests
 import webbrowser
 from urllib.parse import urlencode, urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -29,12 +28,13 @@ class SpotifyClient(StreamingClient):
         Args:
             base_url (str): The base URL for the Spotify API. Default is Spotify's API URL.
         """
+        super().__init__(base_url=base_url, api_key=None)
+
         self.access_token = self._authenticate()
         self.headers = {
             "Authorization": f"Bearer {self.access_token}",
         }
-
-        super().__init__(base_url=base_url, api_key=self.access_token)
+        self.api_key = self.access_token
 
     def _authenticate(self) -> str:
         """
@@ -170,7 +170,7 @@ class SpotifyClient(StreamingClient):
             "client_secret": client_secret,
         }
 
-        response = requests.post(self.TOKEN_URL, data=token_data)
+        response = self.session.post(self.TOKEN_URL, data=token_data)
         if response.status_code != 200:
             raise Exception(f"Failed to obtain an access token: {response.text}")
 
@@ -212,8 +212,65 @@ class SpotifyClient(StreamingClient):
             "time_range": term,
         }
 
-        response = requests.get(endpoint, headers=self.headers, params=params)
+        response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
             raise Exception(f"Failed to get top {top_type}: {response.text}")
 
         return response.json().get("items", [])
+
+    def get_user_playlists(self, limit: int = 50) -> list[dict]:
+        """
+        Fetch the user's playlists.
+
+        Args:
+            limit (int): The number of playlists to retrieve (default is 50).
+
+        Returns:
+            list[dict]: A list of playlists with their details.
+        """
+        endpoint = f"{self.base_url}/me/playlists"
+        params = {"limit": limit}
+
+        response = self.session.get(endpoint, headers=self.headers, params=params)
+        if response.status_code != 200:
+            raise Exception(f"Failed to get playlists: {response.text}")
+
+        items = response.json().get("items", [])
+        return [
+            {
+                "id": playlist["id"],
+                "name": playlist.get("name", "Unknown Playlist"),
+            }
+            for playlist in items
+        ]
+
+    def get_playlist_tracks(self, playlist_id: str, limit: int = 100) -> list[dict]:
+        """
+        Fetch the tracks from a specific playlist.
+
+        Args:
+            playlist_id (str): The Spotify ID of the playlist.
+            limit (int): The number of tracks to retrieve (default is 100).
+
+        Returns:
+            list[dict]: A list of tracks with their details.
+        """
+        endpoint = f"{self.base_url}/playlists/{playlist_id}/tracks"
+        params = {"limit": limit}
+
+        response = self.session.get(endpoint, headers=self.headers, params=params)
+        if response.status_code != 200:
+            raise Exception(f"Failed to get tracks: {response.text}")
+
+        items = response.json().get("items", [])
+        return [
+            {
+                "name": track["track"].get("name", "Unknown Track"),
+                "artist": ", ".join(
+                    artist["name"] for artist in track["track"].get("artists", [])
+                )
+                if track.get("track")
+                else "Unknown Artist",
+            }
+            for track in items
+        ]

@@ -44,7 +44,7 @@ class MainMenu:
             menu_options.append(("Apple Music Tools", self.display_apple_music_menu))
 
         # Exit option
-        menu_options.append(("Exit", self.exit_program))
+        menu_options.append(("[red]Exit[/red]", self.exit_program))
 
         return menu_options
 

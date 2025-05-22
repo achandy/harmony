@@ -36,8 +36,9 @@ class SpotifyCLI:
             ("Top Songs (Past Year)", lambda: self.show_top_tracks("long_term")),
             ("Top Artists (Past Month)", lambda: self.show_top_artists("short_term")),
             ("Top Artists (Past Year)", lambda: self.show_top_artists("long_term")),
-            ("Return to Main Menu", lambda: "return"),
-            ("Exit", lambda: "exit"),
+            ("Get User Playlists", lambda: self.show_user_playlists()),
+            ("[magenta]Return to Main Menu[/magenta]", lambda: "return"),
+            ("[red]Exit[/red]", lambda: "exit"),
         ]
 
         while True:
@@ -113,6 +114,86 @@ class SpotifyCLI:
             self.console.print(
                 f"[bold red]Failed to fetch top {top_type}: {str(e)}[/bold red]"
             )
+
+        self._pause_for_user()
+
+    def show_user_playlists(self):
+        """
+        Fetch and display the user's playlists and their tracks.
+        Implements a submenu for navigating playlists and tracks.
+        """
+        try:
+            # Step 1: Fetch all playlists
+            playlists = self.spotify_client.get_user_playlists()
+            if not playlists:
+                self.console.print("[bold yellow]No playlists found.[/bold yellow]")
+                self._pause_for_user()
+                return
+
+            # Step 2: Display Playlists Submenu
+            while True:
+                self.console.print(
+                    "\n[green1]Select a playlist to view its tracks: [/green1]"
+                )
+
+                # List playlists with index
+                for index, playlist in enumerate(playlists, start=1):
+                    self.console.print(f"[green1]{index}[/green1]. {playlist['name']}")
+
+                # Get user choice
+                self.console.print(
+                    f"[green1]{len(playlists) + 1}. Return to Spotify Menu[/green1]"
+                )
+                try:
+                    choice = int(self.console.input("Enter the playlist number: "))
+                    if 1 <= choice <= len(playlists):
+                        selected_playlist = playlists[choice - 1]
+                        self._display_playlist_tracks(selected_playlist)
+                    elif choice == len(playlists) + 1:
+                        return  # Go back to the previous menu
+                    else:
+                        self.console.print(
+                            "[bold red]Invalid choice. Please try again.[/bold red]"
+                        )
+                except ValueError:
+                    self.console.print(
+                        "[bold red]Please enter a valid number.[/bold red]"
+                    )
+        except Exception as e:
+            self.console.print(
+                f"[bold red]Failed to fetch playlists: {str(e)}[/bold red]"
+            )
+
+        self._pause_for_user()
+
+    def _display_playlist_tracks(self, playlist: dict):
+        """
+        Display the tracks from a specific playlist.
+
+        Args:
+            playlist (dict): The playlist details.
+        """
+        try:
+            # Fetch playlist tracks
+            self.console.print(
+                f"\n[green1]Tracks in Playlist: {playlist['name']}[/green1]"
+            )
+            playlist_id = playlist["id"]
+            tracks = self.spotify_client.get_playlist_tracks(playlist_id)
+
+            # No tracks in the playlist
+            if not tracks:
+                self.console.print(
+                    "[bold yellow]No tracks found in this playlist.[/bold yellow]"
+                )
+            else:
+                # Print the tracks
+                for index, item in enumerate(tracks, start=1):
+                    self.console.print(
+                        f"[green1]{index}[/green1]. {item['name']} by {item['artist']}"
+                    )
+        except Exception as e:
+            self.console.print(f"[bold red]Failed to fetch tracks: {str(e)}[/bold red]")
 
         self._pause_for_user()
 
