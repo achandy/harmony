@@ -9,7 +9,9 @@ def streaming_client():
     Fixture to provide a StreamingClient instance with a mock base URL and API key.
     """
     return StreamingClient(
-        base_url="https://api.musicstreaming.com", api_key="test_api_key"
+        client_name="Test Client",
+        base_url="https://api.musicstreaming.com",
+        api_key="test_api_key",
     )
 
 
@@ -90,11 +92,13 @@ def test_search_song(streaming_client):
         f"{streaming_client.base_url}/search",
         json=expected_response,
         status=200,
-        match=[responses.matchers.query_string_matcher(f"query={query}&type=song")],
+        match=[
+            responses.matchers.query_string_matcher(f"query={query}&limit=10&type=song")
+        ],
     )
 
     # Call search and assert the response
-    response = streaming_client.search(query=query, type="song")
+    response = streaming_client.search(query=query, types=["song"])
     assert response == expected_response
 
 
@@ -112,11 +116,15 @@ def test_search_album(streaming_client):
         f"{streaming_client.base_url}/search",
         json=expected_response,
         status=200,
-        match=[responses.matchers.query_string_matcher(f"query={query}&type=album")],
+        match=[
+            responses.matchers.query_string_matcher(
+                f"query={query}&limit=10&type=album"
+            )
+        ],
     )
 
     # Call search and assert the response
-    response = streaming_client.search(query=query, type="album")
+    response = streaming_client.search(query=query, types=["album"])
     assert response == expected_response
 
 
@@ -134,9 +142,13 @@ def test_search_artist(streaming_client):
         f"{streaming_client.base_url}/search",
         json=expected_response,
         status=200,
-        match=[responses.matchers.query_string_matcher(f"query={query}&type=artist")],
+        match=[
+            responses.matchers.query_string_matcher(
+                f"query={query}&limit=10&type=artist"
+            )
+        ],
     )
 
     # Call search and assert the response
-    response = streaming_client.search(query=query, type="artist")
+    response = streaming_client.search(query=query, types=["artist"])
     assert response == expected_response

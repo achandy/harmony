@@ -23,7 +23,6 @@ def mock_environment():
 @pytest.fixture
 def mock_apple_music_client(mock_environment):
     """Fixture to mock the AppleMusicClient initialization."""
-    """Fixture to mock the SpotifyClient.__authenticate method and provide a SpotifyClient instance."""
     with patch(
         "harmony.apple_music.apple_music_client.AppleMusicClient._authenticate",
         return_value="mock_user_token",
@@ -32,6 +31,12 @@ def mock_apple_music_client(mock_environment):
             client = AppleMusicClient()
             client.session = MagicMock()
             client.base_url = "https://api.music.apple.com/v1"
+            client.logger = MagicMock()
+            client.logger.info = MagicMock()
+            client.logger.debug = MagicMock()
+            client.logger.error = MagicMock()
+            client.logger.warning = MagicMock()
+            client.logger.log_and_print = MagicMock()
 
             yield client
 

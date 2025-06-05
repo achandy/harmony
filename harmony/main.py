@@ -1,25 +1,27 @@
 from rich.console import Console
+from harmony.tools.logger import Logger
 from harmony.spotify.spotify_client import SpotifyClient
 from harmony.spotify.spotify_cli import SpotifyCLI
 from harmony.apple_music.apple_music_client import AppleMusicClient
 from harmony.apple_music.apple_music_cli import AppleMusicCLI
-
-console = Console()
-
-harmony_ascii = r"""
- _    , __  _ __  _ _ _   __  _ __  _    ,
-' )  / /  )' )  )' ) ) ) / ')' )  )' )  / 
- /--/ /--/  /--'  / / / /  /  /  /  /  /  
-/  (_/  (_ /  \_ / ' (_(__/  /  (_ (__/_  
-                                    //    
-                                   (/     
-"""
+from harmony.tools.playlist_syncer import PlaylistSyncer
 
 
 class MainMenu:
     """Handles the main menu for the Harmony CLI."""
 
     def __init__(self):
+        self.console = Console()
+        self.logger = Logger("harmony.main")
+
+        self.harmony_ascii = r"""
+         _    , __  _ __  _ _ _   __  _ __  _    ,
+        ' )  / /  )' )  )' ) ) ) / ')' )  )' )  / 
+         /--/ /--/  /--'  / / / /  /  /  /  /  /  
+        /  (_/  (_ /  \_ / ' (_(__/  /  (_ (__/_  
+                                            //    
+                                           (/     
+        """
         self.spotify_client = None
         self.apple_music_client = None
 
@@ -39,9 +41,11 @@ class MainMenu:
 
         # Add tools options only if authenticated
         if self.spotify_client:
-            menu_options.insert(1, ("Spotify Tools", self.display_spotify_menu))
+            menu_options.append(("Spotify Tools", self.display_spotify_menu))
         if self.apple_music_client:
             menu_options.append(("Apple Music Tools", self.display_apple_music_menu))
+        if self.spotify_client and self.apple_music_client:
+            menu_options.append(("Sync Playlists", self.display_sync_menu))
 
         # Exit option
         menu_options.append(("[red]Exit[/red]", self.exit_program))
@@ -50,15 +54,15 @@ class MainMenu:
 
     def authenticate_spotify(self):
         """Authenticate Spotify."""
-        console.print("\nAuthenticating Spotify")
+        self.logger.log_and_print("\nAuthenticating Spotify")
         self.spotify_client = SpotifyClient()
-        console.print("Spotify authentication successful!")
+        self.logger.log_and_print("Spotify authentication successful")
 
     def authenticate_apple_music(self):
         """Authenticate Apple Music."""
-        console.print("\nAuthenticating Apple Music")
+        self.logger.log_and_print("Starting Apple Music authentication")
         self.apple_music_client = AppleMusicClient()
-        console.print("Apple Music authentication successful!")
+        self.logger.log_and_print("Apple Music authentication successful")
 
     def display_spotify_menu(self):
         """Display Spotify tools menu."""
@@ -68,40 +72,53 @@ class MainMenu:
         """Display Apple Music tools menu."""
         AppleMusicCLI(self.apple_music_client).display_menu()
 
+    def display_sync_menu(self):
+        """Display the playlist sync menu"""
+        PlaylistSyncer(self.spotify_client, self.apple_music_client)
+
     def display(self):
-        """Display the dynamically updating menu."""
+        """Display the main menu."""
+        self.logger.info("Starting Harmony main menu")
         while True:
-            console.print("\n\n" + harmony_ascii)
-            console.print("[bold magenta]Main Menu:[/bold magenta]")
+            self.console.print("\n\n" + self.harmony_ascii)
+            self.console.print("[bold magenta]Main Menu:[/bold magenta]")
 
             menu_options = self._get_menu_options()
 
             # Display menu items
             for index, (label, _) in enumerate(menu_options, start=1):
-                console.print(f"[bold magenta]{index}[/bold magenta]. {label}")
+                self.console.print(f"[bold magenta]{index}[/bold magenta]. {label}")
 
             # Get user choice
             try:
-                choice = int(console.input("Enter your choice: "))
+                choice = int(self.console.input("Enter your choice: "))
                 if 1 <= choice <= len(menu_options):
-                    _, action = menu_options[choice - 1]
-                    action()  # Execute the corresponding action
+                    label, action = menu_options[choice - 1]
+                    action()
                 else:
-                    console.print("[bold red]Invalid choice. Try again.[/bold red]")
+                    self.console.print(
+                        "[bold red]Invalid choice. Try again.[/bold red]"
+                    )
             except ValueError:
-                console.print("[bold red]Please enter a valid number.[/bold red]")
+                self.console.print("[bold red]Please enter a valid number.[/bold red]")
 
-    @staticmethod
-    def exit_program():
+    def exit_program(self):
         """
         Exit the program entirely.
         """
-        console.print("[bold magenta]Goodbye![/bold magenta]")
+        self.logger.info("User exited the application")
+        self.console.print("[bold magenta]Goodbye![/bold magenta]")
         exit(0)
 
 
 def main():
-    MainMenu().display()
+    logger = Logger("harmony")
+    logger.info("Starting Harmony application")
+    try:
+        MainMenu().display()
+    except Exception as e:
+        logger.error(f"Unhandled exception: {str(e)}")
+        raise
 
 
 if __name__ == "__main__":

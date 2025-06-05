@@ -30,6 +30,12 @@ def mock_spotify_client(mock_environment):
             client.base_url = "https://mock.api.spotify.com/v1"
             client.headers = {"Authorization": "Bearer mock_access_token"}
             client.session = MagicMock()
+            client.logger = MagicMock()
+            client.logger.info = MagicMock()
+            client.logger.debug = MagicMock()
+            client.logger.error = MagicMock()
+            client.logger.warning = MagicMock()
+            client.logger.log_and_print = MagicMock()
             yield client
 
 
@@ -112,7 +118,7 @@ def test_exchange_code_for_token_failure(mock_spotify_client):
         status=400,
     )
 
-    with pytest.raises(Exception, match="Failed to obtain an access token"):
+    with pytest.raises(Exception, match="Failed to obtain an access token.*"):
         mock_spotify_client._exchange_code_for_token(
             "test_auth_code", "test_client_id", "test_client_secret"
         )
@@ -226,10 +232,7 @@ def test_get_playlist_tracks(mock_spotify_client):
                     "artists": [{"name": "Artist A"}],
                 }
             },
-            {
-                "track": {  # missing 'name' and 'artists', should default
-                }
-            }
+            {"track": {}},  # missing 'name' and 'artists', should default
         ]
     }
     mock_spotify_client.session.get.return_value = mock_response
@@ -238,7 +241,7 @@ def test_get_playlist_tracks(mock_spotify_client):
 
     assert result == [
         {"name": "Song A", "artist": "Artist A"},
-        {"name": "Unknown Track", "artist": "Unknown Artist"}
+        {"name": "Unknown Track", "artist": "Unknown Artist"},
     ]
 
     mock_spotify_client.session.get.assert_called_with(
