@@ -62,28 +62,28 @@
 
 ## Usage
 
-Run the Harmony CLI directly using:
+**Run the Harmony CLI**  
+Use either of the following commands:
 
-   ```bash
-   harmony
-   ```
-or
-   ```bash
-   make run
-   ```
+```bash
+harmony
+# or
+make run
+````
 
 
 **Main Menu**  
-<img src="main-menu.png" alt="Main Menu" width="300"/>
+<img src="main-menu.png" alt="Main Menu" width="600"/>
 
-**Spotify Menu**  
-<img src="spotify-menu.png" alt="Spotify Menu" width="300"/>
+**Authenticate Spotify or Apple Music**
 
-**Apple Music Menu**  
-<img src="am-menu.png" alt="AM Menu" width="300"/>
+<img src="spotify-menu.png" alt="Spotify Menu" width="600"/>
 
-**Sync Menu**  
-<img src="sync-menu.png" alt="Sync Menu" width="300"/>
+<img src="am-menu.png" alt="AM Menu" width="600"/>
+
+**Authenticate both for Sync Menu**
+
+<img src="sync-menu.png" alt="Sync Menu" width="600"/>
 
 ---
 
@@ -98,6 +98,12 @@ or
 - **Python**: Requires Python 3.7 or higher.
 - **Dependencies**:
     - Ensure all required libraries are installed via `requirements.txt`.
+
+---
+
+## Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
 
 ---
 
