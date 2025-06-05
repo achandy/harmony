@@ -5,6 +5,7 @@ from harmony.spotify.spotify_cli import SpotifyCLI
 from harmony.apple_music.apple_music_client import AppleMusicClient
 from harmony.apple_music.apple_music_cli import AppleMusicCLI
 from harmony.tools.playlist_syncer import PlaylistSyncer
+from harmony.tools.cli_tools import display_menu
 
 
 class MainMenu:
@@ -13,15 +14,6 @@ class MainMenu:
     def __init__(self):
         self.console = Console()
         self.logger = Logger("harmony.main")
-
-        self.harmony_ascii = r"""
-         _    , __  _ __  _ _ _   __  _ __  _    ,
-        ' )  / /  )' )  )' ) ) ) / ')' )  )' )  / 
-         /--/ /--/  /--'  / / / /  /  /  /  /  /  
-        /  (_/  (_ /  \_ / ' (_(__/  /  (_ (__/_  
-                                            //    
-                                           (/     
-        """
         self.spotify_client = None
         self.apple_music_client = None
 
@@ -46,9 +38,6 @@ class MainMenu:
             menu_options.append(("Apple Music Tools", self.display_apple_music_menu))
         if self.spotify_client and self.apple_music_client:
             menu_options.append(("Sync Playlists", self.display_sync_menu))
-
-        # Exit option
-        menu_options.append(("[red]Exit[/red]", self.exit_program))
 
         return menu_options
 
@@ -79,28 +68,21 @@ class MainMenu:
     def display(self):
         """Display the main menu."""
         self.logger.info("Starting Harmony main menu")
-        while True:
-            self.console.print("\n\n" + self.harmony_ascii)
-            self.console.print("[bold magenta]Main Menu:[/bold magenta]")
+        harmony_ascii = r"""
+         _    , __  _ __  _ _ _   __  _ __  _    ,
+        ' )  / /  )' )  )' ) ) ) / ')' )  )' )  / 
+         /--/ /--/  /--'  / / / /  /  /  /  /  /  
+        /  (_/  (_ /  \_ / ' (_(__/  /  (_ (__/_  
+                                            //    
+                                           (/     
+        """
 
-            menu_options = self._get_menu_options()
-
-            # Display menu items
-            for index, (label, _) in enumerate(menu_options, start=1):
-                self.console.print(f"[bold magenta]{index}[/bold magenta]. {label}")
-
-            # Get user choice
-            try:
-                choice = int(self.console.input("Enter your choice: "))
-                if 1 <= choice <= len(menu_options):
-                    label, action = menu_options[choice - 1]
-                    action()
-                else:
-                    self.console.print(
-                        "[bold red]Invalid choice. Try again.[/bold red]"
-                    )
-            except ValueError:
-                self.console.print("[bold red]Please enter a valid number.[/bold red]")
+        display_menu(
+            title="Main Menu",
+            color="magenta",
+            dynamic_options=self._get_menu_options,
+            ascii_art=harmony_ascii,
+        )
 
     def exit_program(self):
         """
