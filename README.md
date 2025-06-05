@@ -6,26 +6,21 @@
 
 ![Harmony Logo](harmony-logo.png)
 
-**Harmony** is a CLI application that lets you view your Spotify and Apple Music stats and seamlessly sync playlists between both platforms.
+*A CLI app for viewing your music stats and syncing playlists across Spotify and Apple Music.*
 
 
 ---
 
 ## Features
 
-- **Spotify**:
-    - User Stats such as:
-      - Top Songs
-      - Top Artists
-    - View playlists
-
-- **Apple Music**:
-    - User Stats such as:
-      - Top Albums
-    - View playlists
-
-- **Harmony**:
-  - Sync playlists between Apple Music and Spotify 
+- **Spotify**
+  - View top songs and artists
+  - Browse your playlists
+- **Apple Music**
+  - View top albums
+  - Browse your playlists
+- **Syncing**
+  - Migrate playlists between platforms with one command
 ---
 
 ## Installation
@@ -33,7 +28,7 @@
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/harmony.git
+   git clone https://github.com/achandy/harmony.git
    cd harmony
    ```
 
@@ -77,9 +72,19 @@ or
    make run
    ```
 
-The main menu will appear:
-   - Authenticate with Spotify or Apple Music for session-specific tools.
-   - Utilize the Spotify and Apple Music submenus or Sync Playlists
+
+**Main Menu**
+![Main Menu](main-menu.png)
+
+**Spotify Menu**
+![Spotify Menu](spotify-menu.png)
+
+**Apple Music Menu**
+![AM Menu](am-menu.png)
+
+**Sync Menu**:
+
+![Sync Menu](sync-menu.png)
 
 ---
 
