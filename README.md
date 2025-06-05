@@ -9,7 +9,7 @@
 *A CLI app for viewing your music stats and syncing playlists across Spotify and Apple Music.*
 
 
----
+
 
 ## Features
 
@@ -21,7 +21,7 @@
   - Browse your playlists
 - **Syncing**
   - Migrate playlists between platforms with one command
----
+
 
 ## Installation
 
@@ -58,7 +58,7 @@
      - `APPLE_PRIVATE_KEY`
 
 
----
+
 
 ## Usage
 
@@ -85,37 +85,36 @@ make run
 
 <img src="sync-menu.png" alt="Sync Menu" width="600"/>
 
----
+
 
 ## Testing
 
    ```bash
    make test
    ```
----
+
 ## Prerequisites
 
 - **Python**: Requires Python 3.7 or higher.
 - **Dependencies**:
     - Ensure all required libraries are installed via `requirements.txt`.
 
----
+
 
 ## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
 
----
+
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+
 
 ## Author
 
 Developed by **Allan Chandy**  
 Email: *chandyallan@gmail.com*
 
----
