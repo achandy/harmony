@@ -73,18 +73,17 @@ or
    ```
 
 
-**Main Menu**
-![Main Menu](main-menu.png)
+**Main Menu**  
+<img src="main-menu.png" alt="Main Menu" width="300"/>
 
-**Spotify Menu**
-![Spotify Menu](spotify-menu.png)
+**Spotify Menu**  
+<img src="spotify-menu.png" alt="Spotify Menu" width="300"/>
 
-**Apple Music Menu**
-![AM Menu](am-menu.png)
+**Apple Music Menu**  
+<img src="am-menu.png" alt="AM Menu" width="300"/>
 
-**Sync Menu**:
-
-![Sync Menu](sync-menu.png)
+**Sync Menu**  
+<img src="sync-menu.png" alt="Sync Menu" width="300"/>
 
 ---
 
