@@ -34,7 +34,13 @@ def display_submenu(title: str, menu_options: tuple, color: str) -> int:
             console.print("[bold red]Please enter a valid number.[/bold red]")
 
 
-def display_menu(title, color, menu_options: tuple =None, dynamic_options: callable = None, ascii_art: str = None, ):
+def display_menu(
+    title,
+    color,
+    menu_options: tuple = None,
+    dynamic_options: callable = None,
+    ascii_art: str = None,
+):
     """
     Display a menu with options and process user input.
 
@@ -47,11 +53,15 @@ def display_menu(title, color, menu_options: tuple =None, dynamic_options: calla
     """
     while True:
         # Get fresh menu options if a dynamic options function is provided
-        full_options = tuple(dynamic_options()) if dynamic_options else tuple(menu_options)
+        full_options = (
+            tuple(dynamic_options()) if dynamic_options else tuple(menu_options)
+        )
 
         # Add standard menu options as new tuples (concatenation creates a new tuple)
         if title != "Main Menu":
-            full_options += (("[magenta]Return to Main Menu[/magenta]", lambda: "return"),)
+            full_options += (
+                ("[magenta]Return to Main Menu[/magenta]", lambda: "return"),
+            )
         full_options += (("[red]Exit[/red]", lambda: "exit"),)
 
         if ascii_art:

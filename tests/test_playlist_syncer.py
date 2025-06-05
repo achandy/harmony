@@ -55,7 +55,7 @@ def test_find_matching_playlist():
     assert result["id"] == "2"
 
     # Test close match
-    result = PlaylistSyncer.find_matching_playlist("Drums Guitar", playlists)
+    result = PlaylistSyncer.find_matching_playlist("Drums  Guitar", playlists)
     assert result["id"] == "2"
 
     # Test no match

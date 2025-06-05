@@ -496,7 +496,9 @@ class PlaylistSyncer:
             ) = self._get_playlists_from_services()
 
             # Create menu options: playlists + return option
-            menu_options = tuple(playlist['name'] for playlist in source_playlists) + ("[magenta]Return to Sync Menu[/magenta]",)
+            menu_options = tuple(playlist["name"] for playlist in source_playlists) + (
+                "[magenta]Return to Sync Menu[/magenta]",
+            )
 
             # Display menu and get selection
             selection = display_submenu(

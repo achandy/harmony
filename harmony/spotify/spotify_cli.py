@@ -45,7 +45,7 @@ class SpotifyCLI:
             title="Spotify Menu",
             color="green1",
             menu_options=menu_options,
-            ascii_art=spotify_ascii
+            ascii_art=spotify_ascii,
         )
 
     def show_top_tracks(self, term: str):
@@ -109,13 +109,15 @@ class SpotifyCLI:
                 return
 
             # Step 2: Create menu options from playlists
-            menu_options = tuple(playlist['name'] for playlist in playlists) + ("[green1]Return to Spotify Menu[/green1]",)
+            menu_options = tuple(playlist["name"] for playlist in playlists) + (
+                "[green1]Return to Spotify Menu[/green1]",
+            )
 
             # Step 3: Display submenu and get playlist selection
             selection = display_submenu(
                 title="Select a playlist to list tracks:",
                 menu_options=menu_options,
-                color="green1"
+                color="green1",
             )
 
             # Process selection

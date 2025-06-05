@@ -38,7 +38,7 @@ class AppleMusicCLI:
             title="Apple Music Menu",
             color="red",
             menu_options=menu_options,
-            ascii_art=apple_music_ascii
+            ascii_art=apple_music_ascii,
         )
 
     def show_top_albums(self):
@@ -84,13 +84,15 @@ class AppleMusicCLI:
                 return
 
             # Step 2: Create menu options from playlists
-            menu_options = tuple(playlist['name'] for playlist in playlists) + ("[red]Return to Apple Music Menu[/red]",)
+            menu_options = tuple(playlist["name"] for playlist in playlists) + (
+                "[red]Return to Apple Music Menu[/red]",
+            )
 
             # Step 3: Display submenu and get playlist selection
             selection = display_submenu(
                 title="Select a playlist to list tracks:",
                 menu_options=menu_options,
-                color="red"
+                color="red",
             )
 
             if selection is None or selection == len(menu_options) - 1:
