@@ -17,14 +17,12 @@
     - User Stats such as:
       - Top Songs
       - Top Artists
-    - List Playlists
-      - List Songs in Playlist
+    - View playlists
 
 - **Apple Music**:
     - User Stats such as:
       - Top Albums
-    - List Playlists
-      - List Songs in Playlist
+    - View playlists
 
 - **Harmony**:
   - Sync playlists between Apple Music and Spotify 
