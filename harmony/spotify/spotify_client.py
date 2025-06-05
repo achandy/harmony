@@ -26,7 +26,7 @@ class SpotifyClient(StreamingClient):
         Initialize the Spotify client and handle authentication.
 
         Args:
-            base_url (str): The base URL for the Spotify API. Default is Spotify's API URL.
+            base_url: The base URL for the Spotify API. Default is Spotify's API URL.
         """
 
         super().__init__(client_name="Spotify", base_url=base_url, api_key=None)
@@ -82,7 +82,7 @@ class SpotifyClient(StreamingClient):
         listening for the callback.
 
         Args:
-            client_id (str): The application's Spotify client ID.
+            client_id: The application's Spotify client ID.
 
         Returns:
             str: The authorization code provided by Spotify.
@@ -159,9 +159,9 @@ class SpotifyClient(StreamingClient):
         Exchange the authorization code for an access token from Spotify.
 
         Args:
-            authorization_code (str): The authorization code from Spotify.
-            client_id (str): Spotify's client ID for your app.
-            client_secret (str): Spotify's client secret for your app.
+            authorization_code: The authorization code from Spotify.
+            client_id: Spotify's client ID for your app.
+            client_secret: Spotify's client secret for your app.
 
         Returns:
             str: The access token for authenticated API requests.
@@ -204,9 +204,9 @@ class SpotifyClient(StreamingClient):
         Get the user's top objects (artists or tracks) from Spotify for a specific time range.
 
         Args:
-            top_type (str): The type of top object to retrieve ('artists' or 'tracks').
-            limit (int): Number of objects to retrieve (default is 10).
-            term (str): The time range for top items ('short_term', 'medium_term', or 'long_term').
+            top_type: The type of top object to retrieve ('artists' or 'tracks').
+            limit: Number of objects to retrieve (default is 10).
+            term: The time range for top items ('short_term', 'medium_term', or 'long_term').
 
         Returns:
             list[dict]: A list of the top objects with their details.
@@ -238,7 +238,7 @@ class SpotifyClient(StreamingClient):
         Fetch the user's playlists.
 
         Args:
-            limit (int): The number of playlists to retrieve (default is 50).
+            limit: The number of playlists to retrieve (default is 50).
 
         Returns:
             list[dict]: A list of playlists with their details.
@@ -264,8 +264,8 @@ class SpotifyClient(StreamingClient):
         Fetch the tracks from a specific playlist.
 
         Args:
-            playlist_id (str): The Spotify ID of the playlist.
-            limit (int): The number of tracks to retrieve (default is 100).
+            playlist_id: The Spotify ID of the playlist.
+            limit: The number of tracks to retrieve (default is 100).
 
         Returns:
             list[dict]: A list of tracks with their details.
@@ -301,11 +301,11 @@ class SpotifyClient(StreamingClient):
         Search Spotify catalog.
 
         Args:
-            query (str): The search query.
-            types (list[str], optional): Types of items to search for (e.g., ['track', 'album']).
-                                         Defaults to all types if None.
-            limit (int, optional): Number of results to return. Defaults to 10.
-            headers (dict, optional): HTTP headers to send.
+            query: The search query.
+            types: Types of items to search for (e.g., ['track', 'album']).
+                   Defaults to all types if None.
+            limit: Number of results to return. Defaults to 10.
+            headers: HTTP headers to send.
 
         Returns:
             dict: Search results organized by type.
@@ -329,8 +329,8 @@ class SpotifyClient(StreamingClient):
         Add tracks to a playlist.
 
         Args:
-            playlist_id (str): The Spotify playlist ID.
-            track_ids (list[str]): List of Spotify track IDs to add.
+            playlist_id: The Spotify playlist ID.
+            track_ids: List of Spotify track IDs to add.
 
         Returns:
             bool: True if successful, else raises an Exception.
@@ -355,9 +355,9 @@ class SpotifyClient(StreamingClient):
         Create a new playlist
 
         Args:
-            name (str): The name of the new playlist.
-            description (str, optional): The playlist description.
-            public (bool, optional): Whether the playlist is public.
+            name: The name of the new playlist.
+            description: The playlist description.
+            public: Whether the playlist is public.
 
         Returns:
             str: Spotify's response for the created playlist.

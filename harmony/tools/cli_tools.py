@@ -8,9 +8,9 @@ def display_submenu(title: str, menu_options: list, color: str) -> int:
     Display a submenu and return selection
 
     Args:
-        title (str): The title of the menu.
-        menu_options (list): A list of menu option strings.
-        color (str): The color to use for the menu.
+        title: The title of the menu.
+        menu_options: A list of menu option strings.
+        color: The color to use for the menu.
 
     Returns:
         int: The index of the selected option, or None if invalid.
@@ -39,10 +39,10 @@ def display_menu(title, menu_options, color, ascii_art: str = None):
     Display a menu with options and process user input.
 
     Args:
-        title (str): The title of the menu.
-        menu_options (list): A list of tuples, each containing a label and an action function.
-        color (str): The color to use for the menu.
-        ascii_art (str, optional): ASCII art to display at the top of the menu.
+        title: The title of the menu.
+        menu_options: A list of tuples, each containing a label and an action function.
+        color: The color to use for the menu.
+        ascii_art: ASCII art to display at the top of the menu.
     """
     menu_options += (
         ("[magenta]Return to Main Menu[/magenta]", lambda: "return"),
