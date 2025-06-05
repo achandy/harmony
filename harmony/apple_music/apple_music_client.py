@@ -27,7 +27,7 @@ class AppleMusicClient(StreamingClient):
         - Start a local HTTP server for user authentication.
 
         Args:
-            base_url (str): The base URL for the Apple Music API. Default is AM's API URL.
+            base_url: The base URL for the Apple Music API. Default is AM's API URL.
         """
 
         super().__init__(client_name="Apple Music", base_url=base_url)
@@ -49,7 +49,7 @@ class AppleMusicClient(StreamingClient):
         Start a local HTTP server for MusicKit.js-based user authentication.
 
         Args:
-            developer_token (str): A valid developer token for authentication.
+            developer_token: A valid developer token for authentication.
 
         Returns:
             str: The authenticated music user token.
@@ -158,7 +158,7 @@ class AppleMusicClient(StreamingClient):
         Fetch the user's heavy rotation albums.
 
         Args:
-            limit (int): The number of items to retrieve (default: 10).
+            limit: The number of items to retrieve (default: 10).
 
         Returns:
             list[dict]: A list of albums with their names and artist names.
@@ -187,7 +187,7 @@ class AppleMusicClient(StreamingClient):
         Fetch the user's playlists.
 
         Args:
-            limit (int): Maximum number of playlists to retrieve (default: 25).
+            limit: Maximum number of playlists to retrieve (default: 25).
 
         Returns:
             list[dict]: A list of playlists with their names and IDs.
@@ -215,8 +215,8 @@ class AppleMusicClient(StreamingClient):
         Fetch the tracks from a specific playlist.
 
         Args:
-            playlist_id (str): The Apple Music ID of the playlist.
-            limit (int): Maximum number of tracks (default: 100).
+            playlist_id: The Apple Music ID of the playlist.
+            limit: Maximum number of tracks (default: 100).
 
         Returns:
             list[dict]: A list of tracks with their names and artist names.
@@ -261,13 +261,13 @@ class AppleMusicClient(StreamingClient):
         Search Apple Music catalog.
 
         Args:
-            query (str): The search term
-            types (list[str], optional): Types of items to search for (e.g., ['songs', 'albums']).
-                                         Defaults to ['songs'].
-            limit (int, optional): Number of results to return.
-            storefront (str, optional): Storefront code.
-            headers (dict, optional): Additional headers to include in the request.
-                                     If None, uses the session headers with authentication.
+            query: The search term
+            types: Types of items to search for (e.g., ['songs', 'albums']).
+                   Defaults to ['songs'].
+            limit: Number of results to return.
+            storefront: Storefront code.
+            headers: Additional headers to include in the request.
+                     If None, uses the session headers with authentication.
 
         Returns:
             dict: Search results organized by type.
@@ -301,8 +301,8 @@ class AppleMusicClient(StreamingClient):
         Add tracks to a user library playlist.
 
         Args:
-            playlist_id (str): The Apple Music playlist ID.
-            track_ids (list[str]): List of Apple Music track IDs to add.
+            playlist_id: The Apple Music playlist ID.
+            track_ids: List of Apple Music track IDs to add.
 
         Returns:
             bool: True if successful, else raises an Exception.
@@ -323,8 +323,8 @@ class AppleMusicClient(StreamingClient):
         Create a new Apple Music playlist in the user's library.
 
         Args:
-            name (str): The name for the new playlist.
-            description (str, optional): A description for the playlist.
+            name: The name for the new playlist.
+            description: A description for the playlist.
 
         Returns:
             str: Returns playlist id

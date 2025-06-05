@@ -18,8 +18,8 @@ class StreamingClient:
         Initializes the MusicStreamClient with the given base URL and API key.
 
         Args:
-            base_url (str): The base URL for the music streaming API.
-            api_key (str, optional): API key for authentication. Defaults to None.
+            base_url: The base URL for the music streaming API.
+            api_key: API key for authentication. Defaults to None.
         """
         self.console = Console()
 
@@ -38,7 +38,7 @@ class StreamingClient:
         Fetches the details of a song by its ID.
 
         Args:
-            song_id (str): The ID of the song to fetch.
+            song_id: The ID of the song to fetch.
 
         Returns:
             dict: A dictionary containing the song details.
@@ -59,7 +59,7 @@ class StreamingClient:
         Fetches the details of an album by its ID.
 
         Args:
-            album_id (str): The ID of the album to fetch.
+            album_id: The ID of the album to fetch.
 
         Returns:
             dict: A dictionary containing the album details.
@@ -80,7 +80,7 @@ class StreamingClient:
         Fetches the details of an artist by their ID.
 
         Args:
-            artist_id (str): The ID of the artist to fetch.
+            artist_id: The ID of the artist to fetch.
 
         Returns:
             dict: A dictionary containing the artist details.
@@ -103,11 +103,11 @@ class StreamingClient:
         Searches for items in the music service catalog.
 
         Args:
-            query (str): The search query.
-            types (list[str], optional): Types of items to search for (e.g., ['songs', 'albums', 'artists']).
-                                       Defaults to None (all types).
-            limit (int, optional): Number of results to return per type. Defaults to 10.
-            headers (dict, optional): HTTP headers to send with each request. Defaults to None.
+            query: The search query.
+            types: Types of items to search for (e.g., ['songs', 'albums', 'artists']).
+                   Defaults to None (all types).
+            limit: Number of results to return per type. Defaults to 10.
+            headers: HTTP headers to send with each request. Defaults to None.
             **kwargs: Additional service-specific parameters.
 
         Returns:
@@ -134,8 +134,8 @@ class StreamingClient:
         Add tracks to a playlist on the streaming service.
 
         Args:
-            playlist_id (str): The identifier for the playlist to add tracks to.
-            track_ids (list[str]): A list of track IDs to be added to the playlist.
+            playlist_id: The identifier for the playlist to add tracks to.
+            track_ids: A list of track IDs to be added to the playlist.
 
         Returns:
             dict: Details of the operation or the updated playlist.
@@ -149,8 +149,8 @@ class StreamingClient:
         Create a new playlist on the streaming service.
 
         Args:
-            name (str): The name for the new playlist.
-            description (str): The playlist description.
+            name: The name for the new playlist.
+            description: The playlist description.
 
         Returns:
             str: Return playlist id
