@@ -28,11 +28,13 @@ class SpotifyClient(StreamingClient):
         Args:
             base_url (str): The base URL for the Spotify API. Default is Spotify's API URL.
         """
-        super().__init__(base_url=base_url, api_key=None)
+
+        super().__init__(client_name="Spotify", base_url=base_url, api_key=None)
 
         self.access_token = self._authenticate()
         self.headers = {
             "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
         }
         self.api_key = self.access_token
 
@@ -89,12 +91,12 @@ class SpotifyClient(StreamingClient):
             "client_id": client_id,
             "response_type": "code",
             "redirect_uri": self.REDIRECT_URI,
-            "scope": "user-read-private user-top-read user-read-email",
+            "scope": "user-read-private user-top-read user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative",
         }
         auth_url = f"{self.AUTH_URL}?{urlencode(auth_params)}"
 
         # Open the authorization URL in the user's browser
-        print("Opening your browser for Spotify authorization...")
+        self.logger.log_and_print("Opening browser for Spotify authorization")
         webbrowser.open(auth_url)
 
         # Start the HTTP server to capture the authorization code
@@ -135,16 +137,18 @@ class SpotifyClient(StreamingClient):
                     self.end_headers()
                     self.wfile.write(b"Authorization failed!")
 
-        print("Waiting for Spotify authorization...")
+        self.logger.log_and_print("Waiting for Spotify authorization...")
         httpd = HTTPServer(("localhost", 8888), CallbackHandler)
         httpd.handle_request()  # Wait for a single authorization request (blocking)
 
         # Retrieve the authorization code from the HTTP handler
         authorization_code = getattr(httpd, "authorization_code", None)
         if not authorization_code:
-            raise Exception(
-                "Authorization code could not be obtained. Please try again."
-            )
+            error_msg = "Authorization code could not be obtained. Please try again."
+            self.logger.error(error_msg)
+            raise Exception(error_msg)
+
+        self.logger.info("Spotify authorization code received")
 
         return authorization_code
 
@@ -170,15 +174,26 @@ class SpotifyClient(StreamingClient):
             "client_secret": client_secret,
         }
 
-        response = self.session.post(self.TOKEN_URL, data=token_data)
-        if response.status_code != 200:
-            raise Exception(f"Failed to obtain an access token: {response.text}")
+        self.logger.info("Exchanging authorization code for access token")
+        try:
+            response = self.session.post(self.TOKEN_URL, data=token_data)
+            if response.status_code != 200:
+                error_msg = f"Failed to obtain an access token: {response.text}"
+                self.logger.error(error_msg)
+                raise Exception(error_msg)
 
-        # Parse the response for the access token
-        token_response = response.json()
-        access_token = token_response.get("access_token")
-        if not access_token:
-            raise Exception("Access token is missing in the response.")
+            # Parse the response for the access token
+            token_response = response.json()
+            access_token = token_response.get("access_token")
+            if not access_token:
+                error_msg = "Access token is missing in the response."
+                self.logger.error(error_msg)
+                raise Exception(error_msg)
+
+            self.logger.info("Successfully obtained Spotify access token")
+        except Exception as e:
+            self.logger.error(f"Error during token exchange: {str(e)}")
+            raise
 
         return access_token
 
@@ -274,3 +289,81 @@ class SpotifyClient(StreamingClient):
             }
             for track in items
         ]
+
+    def search(
+        self,
+        query: str,
+        types: list[str] = None,
+        limit: int = 10,
+        headers: dict = None,
+    ) -> dict:
+        """
+        Search Spotify catalog.
+
+        Args:
+            query (str): The search query.
+            types (list[str], optional): Types of items to search for (e.g., ['track', 'album']).
+                                         Defaults to all types if None.
+            limit (int, optional): Number of results to return. Defaults to 10.
+            headers (dict, optional): HTTP headers to send.
+
+        Returns:
+            dict: Search results organized by type.
+        """
+        url = f"{self.base_url}/search"
+
+        params = {
+            "q": query,
+            "limit": limit,
+        }
+
+        if types:
+            params["type"] = ",".join(types)
+
+        response = self.session.get(url, params=params, headers=headers or self.headers)
+        response.raise_for_status()
+        return response.json()
+
+    def add_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> bool:
+        """
+        Add tracks to a playlist.
+
+        Args:
+            playlist_id (str): The Spotify playlist ID.
+            track_ids (list[str]): List of Spotify track IDs to add.
+
+        Returns:
+            bool: True if successful, else raises an Exception.
+        """
+        endpoint = f"{self.base_url}/playlists/{playlist_id}/tracks"
+
+        # Spotify expects URIs in the format "spotify:track:id"
+        uris = [f"spotify:track:{track_id}" for track_id in track_ids]
+
+        response = self.session.post(
+            endpoint, headers=self.headers, json={"uris": uris}
+        )
+
+        if response.status_code == 201:
+            return True
+        raise Exception(f"Failed to add tracks: {response.status_code} {response.text}")
+
+    def create_playlist(
+        self, name: str, description: str = "", public: bool = True
+    ) -> str:
+        """
+        Create a new playlist
+
+        Args:
+            name (str): The name of the new playlist.
+            description (str, optional): The playlist description.
+            public (bool, optional): Whether the playlist is public.
+
+        Returns:
+            str: Spotify's response for the created playlist.
+        """
+        endpoint = f"{self.base_url}/me/playlists"
+        payload = {"name": name, "description": description, "public": public}
+        response = self.session.post(endpoint, headers=self.headers, json=payload)
+        response.raise_for_status()
+        return response.json()["id"]

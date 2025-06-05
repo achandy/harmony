@@ -30,16 +30,17 @@ class AppleMusicClient(StreamingClient):
             base_url (str): The base URL for the Apple Music API. Default is AM's API URL.
         """
 
+        super().__init__(client_name="Apple Music", base_url=base_url)
+
         self.developer_token = self._get_developer_token()
         self.user_token = self._authenticate(self.developer_token)
-
-        super().__init__(base_url)
 
         # Configure session headers with both tokens
         self.session.headers.update(
             {
                 "Authorization": f"Bearer {self.developer_token}",
                 "Music-User-Token": self.user_token,
+                "Content-Type": "application/json",
             }
         )
 
@@ -55,7 +56,7 @@ class AppleMusicClient(StreamingClient):
         """
 
         # Open the authorization URL in the user's browser
-        print("Opening your browser for Apple Music authorization...")
+        self.logger.log_and_print("Opening browser for Apple Music authorization")
         webbrowser.open("http://localhost:8888")
 
         class CallbackHandler(BaseHTTPRequestHandler):
@@ -101,7 +102,7 @@ class AppleMusicClient(StreamingClient):
                     b"Authorization successful! You can close this window."
                 )
 
-        print("Waiting for AM authorization...")
+        self.logger.log_and_print("Waiting for Apple Music authorization callback")
         httpd = HTTPServer(("localhost", 8888), CallbackHandler)
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
@@ -110,10 +111,12 @@ class AppleMusicClient(StreamingClient):
         while not CallbackHandler.music_user_token:
             time.sleep(1)
         authorization_code = CallbackHandler.music_user_token
+        self.logger.info("Apple Music user token received")
 
         # Cleanup
         httpd.shutdown()
         thread.join()
+        self.logger.debug("Authorization server shutdown")
 
         return authorization_code
 
@@ -126,14 +129,15 @@ class AppleMusicClient(StreamingClient):
         Returns:
             str: JWT developer token.
         """
+        self.logger.info("Generating Apple Music developer token")
         key_id = os.getenv("APPLE_KEY_ID")
         team_id = os.getenv("APPLE_TEAM_ID")
         private_key = os.getenv("APPLE_PRIVATE_KEY")
 
         if not all([key_id, team_id, private_key]):
-            raise ValueError(
-                "APPLE_KEY_ID, APPLE_TEAM_ID, and APPLE_PRIVATE_KEY must be set in the .env file."
-            )
+            error_msg = "APPLE_KEY_ID, APPLE_TEAM_ID, and APPLE_PRIVATE_KEY must be set in the .env file."
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
 
         # JWT header and payload
         header = {"alg": self.JWT_ALGORITHM, "kid": key_id}
@@ -143,9 +147,11 @@ class AppleMusicClient(StreamingClient):
             "exp": int(time.time()) + 3600 * 12,  # Token valid for 12 hours
         }
 
-        return jwt.encode(
+        token = jwt.encode(
             payload, private_key, algorithm=self.JWT_ALGORITHM, headers=header
         )
+        self.logger.info("Successfully generated Apple Music developer token")
+        return token
 
     def get_heavy_rotation(self, limit: int = 10) -> list[dict]:
         """
@@ -176,7 +182,7 @@ class AppleMusicClient(StreamingClient):
             if item["type"] == "library-albums"
         ]
 
-    def get_user_playlists(self, limit: int = 25) -> list[dict]:
+    def get_user_playlists(self, limit: int = 100) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -220,6 +226,14 @@ class AppleMusicClient(StreamingClient):
 
         # Make the API request
         response = self.session.get(endpoint, params=params)
+        if response.status_code == 404:
+            error = response.json()
+            if (
+                error.get("errors")
+                and error["errors"][0].get("detail")
+                == "No related resources found for tracks"
+            ):
+                return []  # Handle empty playlist
         if response.status_code != 200:
             raise Exception(
                 f"Failed to get tracks for playlist {playlist_id}: {response.text}"
@@ -234,3 +248,92 @@ class AppleMusicClient(StreamingClient):
             }
             for track in items
         ]
+
+    def search(
+        self,
+        query: str,
+        types: list[str] = None,
+        limit: int = 10,
+        storefront: str = "us",
+        headers: dict = None,
+    ) -> dict:
+        """
+        Search Apple Music catalog.
+
+        Args:
+            query (str): The search term
+            types (list[str], optional): Types of items to search for (e.g., ['songs', 'albums']).
+                                         Defaults to ['songs'].
+            limit (int, optional): Number of results to return.
+            storefront (str, optional): Storefront code.
+            headers (dict, optional): Additional headers to include in the request.
+                                     If None, uses the session headers with authentication.
+
+        Returns:
+            dict: Search results organized by type.
+        """
+        url = f"{self.base_url}/catalog/{storefront}/search"
+
+        params = {
+            "term": query,
+            "types": ",".join(types),
+            "limit": limit,
+        }
+
+        try:
+            request_headers = self.session.headers.copy()
+            if headers:
+                request_headers.update(headers)
+
+            self.logger.debug(f"Searching Apple Music with params: {params}")
+            response = self.session.get(url, params=params, headers=request_headers)
+            response.raise_for_status()
+            result = response.json()
+            self.logger.debug(f"Search response status: {response.status_code}")
+            return result
+        except Exception as e:
+            self.logger.error(f"Error searching Apple Music: {str(e)}")
+            # Return empty results structure instead of raising an exception
+            return {"results": {t: {"data": []} for t in types}}
+
+    def add_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> bool:
+        """
+        Add tracks to a user library playlist.
+
+        Args:
+            playlist_id (str): The Apple Music playlist ID.
+            track_ids (list[str]): List of Apple Music track IDs to add.
+
+        Returns:
+            bool: True if successful, else raises an Exception.
+        """
+        endpoint = f"{self.base_url}/me/library/playlists/{playlist_id}/tracks"
+
+        payload = {
+            "data": [{"id": track_id, "type": "songs"} for track_id in track_ids]
+        }
+
+        response = self.session.post(endpoint, json=payload)
+        if response.status_code == 204:
+            return True
+        raise Exception(f"Failed to add tracks: {response.status_code} {response.text}")
+
+    def create_playlist(self, name: str, description: str = "") -> str:
+        """
+        Create a new Apple Music playlist in the user's library.
+
+        Args:
+            name (str): The name for the new playlist.
+            description (str, optional): A description for the playlist.
+
+        Returns:
+            str: Returns playlist id
+        """
+        endpoint = f"{self.base_url}/me/library/playlists"
+        payload = {"attributes": {"name": name, "description": description}}
+        response = self.session.post(endpoint, json=payload)
+        if response.status_code not in (201, 202):
+            raise Exception(
+                f"Failed to create playlist: {response.status_code} {response.text}"
+            )
+        return response.json()["data"][0]["id"]

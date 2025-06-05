@@ -6,20 +6,28 @@
 
 ![Harmony Logo](harmony-logo.png)
 
-**Harmony** is a CLI application that allows users to interact with Spotify and Apple Music APIs for various tasks, including authentication, exploring, and managing music data.
+**Harmony** is a CLI application that lets you view your Spotify and Apple Music stats and seamlessly sync playlists between both platforms.
+
 
 ---
 
 ## Features
 
-- **Spotify Integration**:
-    - Authenticate with Spotify using OAuth.
-    - Access Spotify tools directly via the CLI.
+- **Spotify**:
+    - User Stats such as:
+      - Top Songs
+      - Top Artists
+    - List Playlists
+      - List Songs in Playlist
 
-- **Apple Music Integration**:
-    - Authenticate with Apple Music using a local HTTP server and MusicKit.js.
-    - Access Apple Music tools directly via the CLI.
-    - 
+- **Apple Music**:
+    - User Stats such as:
+      - Top Albums
+    - List Playlists
+      - List Songs in Playlist
+
+- **Harmony**:
+  - Sync playlists between Apple Music and Spotify 
 ---
 
 ## Installation
