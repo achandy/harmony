@@ -79,7 +79,7 @@ or
 
 The main menu will appear:
    - Authenticate with Spotify or Apple Music for session-specific tools.
-   - Utilize the Spotify and Apple Music submenus to perform actions like searching for songs, albums, or artists.
+   - Utilize the Spotify and Apple Music submenus or Sync Playlists
 
 ---
 
