@@ -4,7 +4,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/achandy/harmony)](https://github.com/achandy/harmony/commits/main)
 
 
-![Harmony Logo](harmony-logo.png)
+![Harmony Logo](images/harmony-logo.png)
 
 *A CLI app for viewing your music stats and syncing playlists across Spotify and Apple Music.*
 
@@ -73,17 +73,17 @@ make run
 
 
 **Main Menu**  
-<img src="main-menu.png" alt="Main Menu" width="600"/>
+<img src="images/main-menu.png" alt="Main Menu" width="600"/>
 
 **Authenticate Spotify or Apple Music**
 
-<img src="spotify-menu.png" alt="Spotify Menu" width="600"/>
+<img src="images/spotify-menu.png" alt="Spotify Menu" width="600"/>
 
-<img src="am-menu.png" alt="AM Menu" width="600"/>
+<img src="images/am-menu.png" alt="AM Menu" width="600"/>
 
 **Authenticate both for Sync Menu**
 
-<img src="sync-menu.png" alt="Sync Menu" width="600"/>
+<img src="images/sync-menu.png" alt="Sync Menu" width="600"/>
 
 
 
