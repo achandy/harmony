@@ -1,4 +1,5 @@
 from rich.console import Console
+from harmony.tools.cli_tools import display_menu, display_submenu
 
 
 class SpotifyCLI:
@@ -14,7 +15,14 @@ class SpotifyCLI:
         Args:
             spotify_client: An authenticated instance of SpotifyClient.
         """
-        self.spotify_ascii = r"""
+        self.console = Console()
+        self.spotify_client = spotify_client
+
+    def display_menu(self):
+        """
+        Display the Spotify tools submenu and process user input.
+        """
+        spotify_ascii = r"""
            _____             _   _  __       
           / ____|           | | (_)/ _|      
          | (___  _ __   ___ | |_ _| |_ _   _ 
@@ -24,51 +32,21 @@ class SpotifyCLI:
                 | |                     __/ |
                 |_|                    |___/ 
             """
-        self.console = Console()
-        self.spotify_client = spotify_client
 
-    def display_menu(self):
-        """
-        Display the Spotify tools submenu and process user input.
-        """
         menu_options = [
             ("Top Songs (Past Month)", lambda: self.show_top_tracks("short_term")),
             ("Top Songs (Past Year)", lambda: self.show_top_tracks("long_term")),
             ("Top Artists (Past Month)", lambda: self.show_top_artists("short_term")),
             ("Top Artists (Past Year)", lambda: self.show_top_artists("long_term")),
             ("Get User Playlists", lambda: self.show_user_playlists()),
-            ("[magenta]Return to Main Menu[/magenta]", lambda: "return"),
-            ("[red]Exit[/red]", lambda: "exit"),
         ]
 
-        while True:
-            self.console.print("\n\n[green1]" + self.spotify_ascii + "[/green1]")
-            self.console.print("[green1]Spotify Menu:[/green1]")
-
-            # Display menu items
-            for index, (label, _) in enumerate(menu_options, start=1):
-                self.console.print(f"[green1]{index}[/green1]. {label}")
-
-            # Get user choice
-            try:
-                choice = int(self.console.input("Enter your choice: "))
-                if 1 <= choice <= len(menu_options):
-                    _, action = menu_options[choice - 1]
-                    result = action()
-                    if result == "return":
-                        self.console.print(
-                            "[bold magenta]Returning to the main menu...[/bold magenta]"
-                        )
-                        return
-                    elif result == "exit":
-                        self.console.print("[bold magenta]Goodbye![/bold magenta]")
-                        exit(0)
-                else:
-                    self.console.print(
-                        "[bold red]Invalid choice. Please select a valid option.[/bold red]"
-                    )
-            except ValueError:
-                self.console.print("[bold red]Please enter a valid number.[/bold red]")
+        display_menu(
+            title="Spotify Menu",
+            color="green1",
+            menu_options=menu_options,
+            ascii_art=spotify_ascii
+        )
 
     def show_top_tracks(self, term: str):
         self._show_top_items("tracks", term)
@@ -130,35 +108,23 @@ class SpotifyCLI:
                 self._pause_for_user()
                 return
 
-            # Step 2: Display Playlists Submenu
-            while True:
-                self.console.print(
-                    "\n[green1]Select a playlist to view its tracks: [/green1]"
-                )
+            # Step 2: Create menu options from playlists
+            menu_options = tuple(playlist['name'] for playlist in playlists) + ("[green1]Return to Spotify Menu[/green1]",)
 
-                # List playlists with index
-                for index, playlist in enumerate(playlists, start=1):
-                    self.console.print(f"[green1]{index}[/green1]. {playlist['name']}")
+            # Step 3: Display submenu and get playlist selection
+            selection = display_submenu(
+                title="Select a playlist to list tracks:",
+                menu_options=menu_options,
+                color="green1"
+            )
 
-                # Get user choice
-                self.console.print(
-                    f"[green1]{len(playlists) + 1}. Return to Spotify Menu[/green1]"
-                )
-                try:
-                    choice = int(self.console.input("Enter the playlist number: "))
-                    if 1 <= choice <= len(playlists):
-                        selected_playlist = playlists[choice - 1]
-                        self._display_playlist_tracks(selected_playlist)
-                    elif choice == len(playlists) + 1:
-                        return  # Go back to the previous menu
-                    else:
-                        self.console.print(
-                            "[bold red]Invalid choice. Please try again.[/bold red]"
-                        )
-                except ValueError:
-                    self.console.print(
-                        "[bold red]Please enter a valid number.[/bold red]"
-                    )
+            # Process selection
+            if selection is None or selection == len(menu_options) - 1:
+                return  # Return to previous menu
+            else:
+                selected_playlist = playlists[selection]
+                self._display_playlist_tracks(selected_playlist)
+
         except Exception as e:
             self.console.print(
                 f"[bold red]Failed to fetch playlists: {str(e)}[/bold red]"
@@ -194,8 +160,6 @@ class SpotifyCLI:
                     )
         except Exception as e:
             self.console.print(f"[bold red]Failed to fetch tracks: {str(e)}[/bold red]")
-
-        self._pause_for_user()
 
     def _pause_for_user(self):
         """

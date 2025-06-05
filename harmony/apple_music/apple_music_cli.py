@@ -1,4 +1,5 @@
 from rich.console import Console
+from harmony.tools.cli_tools import display_menu, display_submenu
 
 
 class AppleMusicCLI:
@@ -14,12 +15,6 @@ class AppleMusicCLI:
         Args:
             apple_music_client: An authenticated instance of AppleMusicClient.
         """
-        self.apple_music_ascii = r"""
-         ▗▄▖ ▗▄▄▖ ▗▄▄▖ ▗▖   ▗▄▄▄▖    ▗▖  ▗▖▗▖ ▗▖ ▗▄▄▖▗▄▄▄▖ ▗▄▄▖    
-        ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌       ▐▛▚▞▜▌▐▌ ▐▌▐▌     █  ▐▌       
-        ▐▛▀▜▌▐▛▀▘ ▐▛▀▘ ▐▌   ▐▛▀▀▘    ▐▌  ▐▌▐▌ ▐▌ ▝▀▚▖  █  ▐▌       
-        ▐▌ ▐▌▐▌   ▐▌   ▐▙▄▄▖▐▙▄▄▖    ▐▌  ▐▌▝▚▄▞▘▗▄▄▞▘▗▄█▄▖▝▚▄▄▖                                                     
-            """
         self.console = Console()
         self.apple_music_client = apple_music_client
 
@@ -27,39 +22,24 @@ class AppleMusicCLI:
         """
         Display the Apple Music tools submenu and process user input.
         """
+        apple_music_ascii = r"""
+         ▗▄▖ ▗▄▄▖ ▗▄▄▖ ▗▖   ▗▄▄▄▖    ▗▖  ▗▖▗▖ ▗▖ ▗▄▄▖▗▄▄▄▖ ▗▄▄▖    
+        ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌       ▐▛▚▞▜▌▐▌ ▐▌▐▌     █  ▐▌       
+        ▐▛▀▜▌▐▛▀▘ ▐▛▀▘ ▐▌   ▐▛▀▀▘    ▐▌  ▐▌▐▌ ▐▌ ▝▀▚▖  █  ▐▌       
+        ▐▌ ▐▌▐▌   ▐▌   ▐▙▄▄▖▐▙▄▄▖    ▐▌  ▐▌▝▚▄▞▘▗▄▄▞▘▗▄█▄▖▝▚▄▄▖                                                     
+            """
+
         menu_options = [
             ("Top Albums", lambda: self.show_top_albums()),
             ("Get User Playlists", lambda: self.show_user_playlists()),
-            ("[magenta]Return to Main Menu[/magenta]", lambda: "return"),
-            ("[red]Exit[/red]", lambda: "exit"),
         ]
 
-        while True:
-            self.console.print("\n\n[red]" + self.apple_music_ascii + "[/red]")
-            self.console.print("[red]Apple Music Menu:[/red]")
-
-            for index, (label, _) in enumerate(menu_options, start=1):
-                self.console.print(f"[red]{index}[/red]. {label}")
-
-            try:
-                choice = int(self.console.input("Enter your choice: "))
-                if 1 <= choice <= len(menu_options):
-                    _, action = menu_options[choice - 1]
-                    result = action()
-                    if result == "return":
-                        self.console.print(
-                            "[bold magenta]Returning to the main menu...[/bold magenta]"
-                        )
-                        return
-                    elif result == "exit":
-                        self.console.print("[bold magenta]Goodbye![/bold magenta]")
-                        exit(0)
-                else:
-                    self.console.print(
-                        "[bold red]Invalid choice. Please select a valid option.[/bold red]"
-                    )
-            except ValueError:
-                self.console.print("[bold red]Please enter a valid number.[/bold red]")
+        display_menu(
+            title="Apple Music Menu",
+            color="red",
+            menu_options=menu_options,
+            ascii_art=apple_music_ascii
+        )
 
     def show_top_albums(self):
         """
@@ -103,35 +83,22 @@ class AppleMusicCLI:
                 self._pause_for_user()
                 return
 
-            # Step 2: Display Playlists Submenu
-            while True:
-                self.console.print(
-                    "\n[red]Your Playlists (select a playlist to list tracks):[/red]"
-                )
+            # Step 2: Create menu options from playlists
+            menu_options = tuple(playlist['name'] for playlist in playlists) + ("[red]Return to Apple Music Menu[/red]",)
 
-                # List playlists with index
-                for index, playlist in enumerate(playlists, start=1):
-                    self.console.print(f"[red]{index}[/red]. {playlist['name']}")
+            # Step 3: Display submenu and get playlist selection
+            selection = display_submenu(
+                title="Select a playlist to list tracks:",
+                menu_options=menu_options,
+                color="red"
+            )
 
-                # Get user choice
-                self.console.print(
-                    f"[red]{len(playlists) + 1}. Return to Apple Music Menu[/red]"
-                )
-                try:
-                    choice = int(self.console.input("Enter the playlist number: "))
-                    if 1 <= choice <= len(playlists):
-                        selected_playlist = playlists[choice - 1]
-                        self._display_playlist_tracks(selected_playlist)
-                    elif choice == len(playlists) + 1:
-                        return  # Go back to the previous menu
-                    else:
-                        self.console.print(
-                            "[bold red]Invalid choice. Please try again.[/bold red]"
-                        )
-                except ValueError:
-                    self.console.print(
-                        "[bold red]Please enter a valid number.[/bold red]"
-                    )
+            if selection is None or selection == len(menu_options) - 1:
+                return  # Return to previous menu
+            else:
+                selected_playlist = playlists[selection]
+                self._display_playlist_tracks(selected_playlist)
+
         except Exception as e:
             self.console.print(
                 f"[bold red]Failed to fetch playlists: {str(e)}[/bold red]"
@@ -165,8 +132,6 @@ class AppleMusicCLI:
                     )
         except Exception as e:
             self.console.print(f"[bold red]Failed to fetch tracks: {str(e)}[/bold red]")
-
-        self._pause_for_user()
 
     def _pause_for_user(self):
         """

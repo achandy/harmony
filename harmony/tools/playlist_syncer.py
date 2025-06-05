@@ -145,7 +145,7 @@ class PlaylistSyncer:
         best_match = max(playlists, key=lambda p: similarity(p["name"], playlist_name))
         similarity_score = similarity(best_match["name"], playlist_name)
 
-        return best_match if similarity_score > 0.6 else None
+        return best_match if similarity_score > 0.8 else None
 
     def _search_track(self, track: Tuple[str, str]) -> Optional[str]:
         """
@@ -496,8 +496,7 @@ class PlaylistSyncer:
             ) = self._get_playlists_from_services()
 
             # Create menu options: playlists + return option
-            menu_options = [playlist["name"] for playlist in source_playlists]
-            menu_options.append("[magenta]Return to Main Menu[/magenta]")
+            menu_options = tuple(playlist['name'] for playlist in source_playlists) + ("[magenta]Return to Sync Menu[/magenta]",)
 
             # Display menu and get selection
             selection = display_submenu(
