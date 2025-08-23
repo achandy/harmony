@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
 from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
+from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_SPOTIFY, DEFAULT_TRACK_LIMIT
 
 load_dotenv()
 
@@ -20,7 +21,6 @@ class SpotifyClient(StreamingClient):
 
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
-    REDIRECT_URI = "http://localhost:8888/callback"  # Using a local server for callback
 
     def __init__(self, base_url: str = "https://api.spotify.com/v1"):
         """
@@ -91,7 +91,7 @@ class SpotifyClient(StreamingClient):
         auth_params = {
             "client_id": client_id,
             "response_type": "code",
-            "redirect_uri": self.REDIRECT_URI,
+            "redirect_uri": REDIRECT_URI,
             "scope": "user-read-private user-top-read user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative",
         }
         auth_url = f"{self.AUTH_URL}?{urlencode(auth_params)}"
@@ -139,7 +139,7 @@ class SpotifyClient(StreamingClient):
                     self.wfile.write(b"Authorization failed!")
 
         self.logger.log_and_print("Waiting for Spotify authorization...")
-        httpd = HTTPServer(("localhost", 8888), CallbackHandler)
+        httpd = HTTPServer((LOCALHOST_HOST, LOCALHOST_PORT), CallbackHandler)
         httpd.handle_request()  # Wait for a single authorization request (blocking)
 
         # Retrieve the authorization code from the HTTP handler
@@ -170,7 +170,7 @@ class SpotifyClient(StreamingClient):
         token_data = {
             "grant_type": "authorization_code",
             "code": authorization_code,
-            "redirect_uri": self.REDIRECT_URI,
+            "redirect_uri": REDIRECT_URI,
             "client_id": client_id,
             "client_secret": client_secret,
         }
@@ -199,7 +199,7 @@ class SpotifyClient(StreamingClient):
         return access_token
 
     def get_top(
-        self, top_type: str, limit: int = 10, term: str = "medium_term"
+        self, top_type: str, limit: int = DEFAULT_SEARCH_LIMIT, term: str = "medium_term"
     ) -> list[dict]:
         """
         Get the user's top objects (artists or tracks) from Spotify for a specific time range.
@@ -235,7 +235,7 @@ class SpotifyClient(StreamingClient):
 
         return response.json().get("items", [])
 
-    def get_user_playlists(self, limit: int = 50) -> list[dict]:
+    def get_user_playlists(self, limit: int = DEFAULT_PLAYLIST_LIMIT_SPOTIFY) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -262,7 +262,7 @@ class SpotifyClient(StreamingClient):
             for playlist in items
         ]
 
-    def get_playlist_tracks(self, playlist_id: str, limit: int = 100) -> list[dict]:
+    def get_playlist_tracks(self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT) -> list[dict]:
         """
         Fetch the tracks from a specific playlist.
 
@@ -298,7 +298,7 @@ class SpotifyClient(StreamingClient):
         self,
         query: str,
         types: list[str] = None,
-        limit: int = 10,
+        limit: int = DEFAULT_SEARCH_LIMIT,
         headers: dict = None,
     ) -> dict:
         """

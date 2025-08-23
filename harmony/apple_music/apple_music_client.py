@@ -8,6 +8,7 @@ import webbrowser
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
 from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
+from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC, DEFAULT_TRACK_LIMIT, JWT_EXPIRY_HOURS
 
 load_dotenv()
 
@@ -19,7 +20,6 @@ class AppleMusicClient(StreamingClient):
     """
 
     JWT_ALGORITHM = "ES256"
-    REDIRECT_URI = "http://localhost:8888/callback"
 
     def __init__(self, base_url: str = "https://api.music.apple.com/v1"):
         """
@@ -58,7 +58,7 @@ class AppleMusicClient(StreamingClient):
 
         # Open the authorization URL in the user's browser
         self.logger.log_and_print("Opening browser for Apple Music authorization")
-        webbrowser.open("http://localhost:8888")
+        webbrowser.open(f"http://{LOCALHOST_HOST}:{LOCALHOST_PORT}")
 
         class CallbackHandler(BaseHTTPRequestHandler):
             """Handles HTTP requests for the local authentication server."""
@@ -104,7 +104,7 @@ class AppleMusicClient(StreamingClient):
                 )
 
         self.logger.log_and_print("Waiting for Apple Music authorization callback")
-        httpd = HTTPServer(("localhost", 8888), CallbackHandler)
+        httpd = HTTPServer((LOCALHOST_HOST, LOCALHOST_PORT), CallbackHandler)
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
 
@@ -145,7 +145,7 @@ class AppleMusicClient(StreamingClient):
         payload = {
             "iss": team_id,
             "iat": int(time.time()),
-            "exp": int(time.time()) + 3600 * 12,  # Token valid for 12 hours
+            "exp": int(time.time()) + 3600 * JWT_EXPIRY_HOURS,  # Token valid for specified hours
         }
 
         token = jwt.encode(
@@ -154,7 +154,7 @@ class AppleMusicClient(StreamingClient):
         self.logger.info("Successfully generated Apple Music developer token")
         return token
 
-    def get_heavy_rotation(self, limit: int = 10) -> list[dict]:
+    def get_heavy_rotation(self, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
         """
         Fetch the user's heavy rotation albums.
 
@@ -184,7 +184,7 @@ class AppleMusicClient(StreamingClient):
             if item["type"] == "library-albums"
         ]
 
-    def get_user_playlists(self, limit: int = 100) -> list[dict]:
+    def get_user_playlists(self, limit: int = DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -213,7 +213,7 @@ class AppleMusicClient(StreamingClient):
             for playlist in items
         ]
 
-    def get_playlist_tracks(self, playlist_id: str, limit: int = 100) -> list[dict]:
+    def get_playlist_tracks(self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT) -> list[dict]:
         """
         Fetch the tracks from a specific playlist.
 
@@ -257,7 +257,7 @@ class AppleMusicClient(StreamingClient):
         self,
         query: str,
         types: list[str] = None,
-        limit: int = 10,
+        limit: int = DEFAULT_SEARCH_LIMIT,
         storefront: str = "us",
         headers: dict = None,
     ) -> dict:
