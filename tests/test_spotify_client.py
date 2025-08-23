@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import responses
 from harmony.spotify.spotify_client import SpotifyClient
+from harmony.exceptions import AuthenticationError, ConfigurationError
 
 
 @pytest.fixture
@@ -118,7 +119,7 @@ def test_exchange_code_for_token_failure(mock_spotify_client):
         status=400,
     )
 
-    with pytest.raises(Exception, match="Failed to obtain an access token.*"):
+    with pytest.raises(AuthenticationError, match="Failed to obtain an access token.*"):
         mock_spotify_client._exchange_code_for_token(
             "test_auth_code", "test_client_id", "test_client_secret"
         )

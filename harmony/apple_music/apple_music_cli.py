@@ -1,5 +1,6 @@
 from rich.console import Console
 from harmony.tools.cli_tools import display_menu, display_submenu
+from harmony.apple_music.apple_music_client import AppleMusicClient
 
 
 class AppleMusicCLI:
@@ -8,7 +9,7 @@ class AppleMusicCLI:
     Communicates directly with the AppleMusicClient for operations.
     """
 
-    def __init__(self, apple_music_client):
+    def __init__(self, apple_music_client: AppleMusicClient) -> None:
         """
         Initialize the Apple Music CLI.
 
@@ -18,7 +19,7 @@ class AppleMusicCLI:
         self.console = Console()
         self.apple_music_client = apple_music_client
 
-    def display_menu(self):
+    def display_menu(self) -> None:
         """
         Display the Apple Music tools submenu and process user input.
         """
@@ -41,7 +42,7 @@ class AppleMusicCLI:
             ascii_art=apple_music_ascii,
         )
 
-    def show_top_albums(self):
+    def show_top_albums(self) -> None:
         """
         Fetch and display the user's heavy rotation albums.
         """
@@ -70,7 +71,7 @@ class AppleMusicCLI:
 
         self._pause_for_user()
 
-    def show_user_playlists(self):
+    def show_user_playlists(self) -> None:
         """
         Fetch and display the user's playlists and their tracks.
         Implements a submenu for navigating playlists and tracks.
@@ -108,7 +109,7 @@ class AppleMusicCLI:
 
         self._pause_for_user()
 
-    def _display_playlist_tracks(self, playlist: dict):
+    def _display_playlist_tracks(self, playlist: dict) -> None:
         """
         Display the tracks from a specific playlist.
 
@@ -135,7 +136,7 @@ class AppleMusicCLI:
         except Exception as e:
             self.console.print(f"[bold red]Failed to fetch tracks: {str(e)}[/bold red]")
 
-    def _pause_for_user(self):
+    def _pause_for_user(self) -> None:
         """
         Pauses execution to allow the user to review the content by pressing any key.
         """

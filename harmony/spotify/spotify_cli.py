@@ -1,5 +1,6 @@
 from rich.console import Console
 from harmony.tools.cli_tools import display_menu, display_submenu
+from harmony.spotify.spotify_client import SpotifyClient
 
 
 class SpotifyCLI:
@@ -8,7 +9,7 @@ class SpotifyCLI:
     Communicates directly with the SpotifyClient for operations like searching.
     """
 
-    def __init__(self, spotify_client):
+    def __init__(self, spotify_client: SpotifyClient) -> None:
         """
         Initialize the Spotify CLI.
 
@@ -18,7 +19,7 @@ class SpotifyCLI:
         self.console = Console()
         self.spotify_client = spotify_client
 
-    def display_menu(self):
+    def display_menu(self) -> None:
         """
         Display the Spotify tools submenu and process user input.
         """
@@ -48,13 +49,13 @@ class SpotifyCLI:
             ascii_art=spotify_ascii,
         )
 
-    def show_top_tracks(self, term: str):
+    def show_top_tracks(self, term: str) -> None:
         self._show_top_items("tracks", term)
 
-    def show_top_artists(self, term: str):
+    def show_top_artists(self, term: str) -> None:
         self._show_top_items("artists", term)
 
-    def _show_top_items(self, top_type: str, term: str):
+    def _show_top_items(self, top_type: str, term: str) -> None:
         """
         Helper method to retrieve and display user's top items (tracks or artists).
 
@@ -95,7 +96,7 @@ class SpotifyCLI:
 
         self._pause_for_user()
 
-    def show_user_playlists(self):
+    def show_user_playlists(self) -> None:
         """
         Fetch and display the user's playlists and their tracks.
         Implements a submenu for navigating playlists and tracks.
@@ -134,7 +135,7 @@ class SpotifyCLI:
 
         self._pause_for_user()
 
-    def _display_playlist_tracks(self, playlist: dict):
+    def _display_playlist_tracks(self, playlist: dict) -> None:
         """
         Display the tracks from a specific playlist.
 
@@ -163,7 +164,7 @@ class SpotifyCLI:
         except Exception as e:
             self.console.print(f"[bold red]Failed to fetch tracks: {str(e)}[/bold red]")
 
-    def _pause_for_user(self):
+    def _pause_for_user(self) -> None:
         """
         Pauses execution to allow the user to review the content by pressing any key.
         """

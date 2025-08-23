@@ -4,6 +4,8 @@ from urllib.parse import urlencode, urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
+from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
+from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_SPOTIFY, DEFAULT_TRACK_LIMIT
 
 load_dotenv()
 
@@ -19,7 +21,6 @@ class SpotifyClient(StreamingClient):
 
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
-    REDIRECT_URI = "http://localhost:8888/callback"  # Using a local server for callback
 
     def __init__(self, base_url: str = "https://api.spotify.com/v1"):
         """
@@ -70,7 +71,7 @@ class SpotifyClient(StreamingClient):
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
         if not client_id or not client_secret:
-            raise ValueError(
+            raise ConfigurationError(
                 "SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in the .env file"
             )
 
@@ -90,7 +91,7 @@ class SpotifyClient(StreamingClient):
         auth_params = {
             "client_id": client_id,
             "response_type": "code",
-            "redirect_uri": self.REDIRECT_URI,
+            "redirect_uri": REDIRECT_URI,
             "scope": "user-read-private user-top-read user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative",
         }
         auth_url = f"{self.AUTH_URL}?{urlencode(auth_params)}"
@@ -138,7 +139,7 @@ class SpotifyClient(StreamingClient):
                     self.wfile.write(b"Authorization failed!")
 
         self.logger.log_and_print("Waiting for Spotify authorization...")
-        httpd = HTTPServer(("localhost", 8888), CallbackHandler)
+        httpd = HTTPServer((LOCALHOST_HOST, LOCALHOST_PORT), CallbackHandler)
         httpd.handle_request()  # Wait for a single authorization request (blocking)
 
         # Retrieve the authorization code from the HTTP handler
@@ -146,7 +147,7 @@ class SpotifyClient(StreamingClient):
         if not authorization_code:
             error_msg = "Authorization code could not be obtained. Please try again."
             self.logger.error(error_msg)
-            raise Exception(error_msg)
+            raise AuthenticationError(error_msg)
 
         self.logger.info("Spotify authorization code received")
 
@@ -169,7 +170,7 @@ class SpotifyClient(StreamingClient):
         token_data = {
             "grant_type": "authorization_code",
             "code": authorization_code,
-            "redirect_uri": self.REDIRECT_URI,
+            "redirect_uri": REDIRECT_URI,
             "client_id": client_id,
             "client_secret": client_secret,
         }
@@ -180,7 +181,7 @@ class SpotifyClient(StreamingClient):
             if response.status_code != 200:
                 error_msg = f"Failed to obtain an access token: {response.text}"
                 self.logger.error(error_msg)
-                raise Exception(error_msg)
+                raise AuthenticationError(error_msg)
 
             # Parse the response for the access token
             token_response = response.json()
@@ -188,7 +189,7 @@ class SpotifyClient(StreamingClient):
             if not access_token:
                 error_msg = "Access token is missing in the response."
                 self.logger.error(error_msg)
-                raise Exception(error_msg)
+                raise AuthenticationError(error_msg)
 
             self.logger.info("Successfully obtained Spotify access token")
         except Exception as e:
@@ -198,7 +199,7 @@ class SpotifyClient(StreamingClient):
         return access_token
 
     def get_top(
-        self, top_type: str, limit: int = 10, term: str = "medium_term"
+        self, top_type: str, limit: int = DEFAULT_SEARCH_LIMIT, term: str = "medium_term"
     ) -> list[dict]:
         """
         Get the user's top objects (artists or tracks) from Spotify for a specific time range.
@@ -229,11 +230,12 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get top {top_type}: {response.text}")
+            raise APIError(f"Failed to get top {top_type}: {response.text}", 
+                          status_code=response.status_code, response_text=response.text)
 
         return response.json().get("items", [])
 
-    def get_user_playlists(self, limit: int = 50) -> list[dict]:
+    def get_user_playlists(self, limit: int = DEFAULT_PLAYLIST_LIMIT_SPOTIFY) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -248,7 +250,8 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get playlists: {response.text}")
+            raise APIError(f"Failed to get playlists: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         items = response.json().get("items", [])
         return [
@@ -259,7 +262,7 @@ class SpotifyClient(StreamingClient):
             for playlist in items
         ]
 
-    def get_playlist_tracks(self, playlist_id: str, limit: int = 100) -> list[dict]:
+    def get_playlist_tracks(self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT) -> list[dict]:
         """
         Fetch the tracks from a specific playlist.
 
@@ -275,7 +278,8 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get tracks: {response.text}")
+            raise APIError(f"Failed to get tracks: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         items = response.json().get("items", [])
         return [
@@ -294,7 +298,7 @@ class SpotifyClient(StreamingClient):
         self,
         query: str,
         types: list[str] = None,
-        limit: int = 10,
+        limit: int = DEFAULT_SEARCH_LIMIT,
         headers: dict = None,
     ) -> dict:
         """
@@ -346,7 +350,8 @@ class SpotifyClient(StreamingClient):
 
         if response.status_code == 201:
             return True
-        raise Exception(f"Failed to add tracks: {response.status_code} {response.text}")
+        raise APIError(f"Failed to add tracks: {response.text}",
+                      status_code=response.status_code, response_text=response.text)
 
     def create_playlist(
         self, name: str, description: str = "", public: bool = True
