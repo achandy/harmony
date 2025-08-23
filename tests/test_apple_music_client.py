@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 import jwt
 import time
 from harmony.apple_music.apple_music_client import AppleMusicClient
+from harmony.exceptions import ConfigurationError
 
 
 @pytest.fixture
@@ -72,7 +73,7 @@ def test_missing_developer_token_env_vars():
     """
     with patch("harmony.apple_music.apple_music_client.os.getenv", return_value=None):
         with pytest.raises(
-            ValueError,
+            ConfigurationError,
             match="APPLE_KEY_ID, APPLE_TEAM_ID, and APPLE_PRIVATE_KEY must be set",
         ):
             client = AppleMusicClient()
