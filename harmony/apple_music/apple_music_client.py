@@ -7,6 +7,7 @@ from urllib.parse import parse_qs
 import webbrowser
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
+from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
 
 load_dotenv()
 
@@ -137,7 +138,7 @@ class AppleMusicClient(StreamingClient):
         if not all([key_id, team_id, private_key]):
             error_msg = "APPLE_KEY_ID, APPLE_TEAM_ID, and APPLE_PRIVATE_KEY must be set in the .env file."
             self.logger.error(error_msg)
-            raise ValueError(error_msg)
+            raise ConfigurationError(error_msg)
 
         # JWT header and payload
         header = {"alg": self.JWT_ALGORITHM, "kid": key_id}
@@ -169,7 +170,8 @@ class AppleMusicClient(StreamingClient):
         # Make the API request
         response = self.session.get(endpoint, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get heavy rotation data: {response.text}")
+            raise APIError(f"Failed to get heavy rotation data: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         # Parse and filter library-albums
         items = response.json().get("data", [])
@@ -198,7 +200,8 @@ class AppleMusicClient(StreamingClient):
         # Make the API request
         response = self.session.get(endpoint, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get playlists: {response.text}")
+            raise APIError(f"Failed to get playlists: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         # Structure output playlists
         items = response.json().get("data", [])
@@ -235,8 +238,9 @@ class AppleMusicClient(StreamingClient):
             ):
                 return []  # Handle empty playlist
         if response.status_code != 200:
-            raise Exception(
-                f"Failed to get tracks for playlist {playlist_id}: {response.text}"
+            raise APIError(
+                f"Failed to get tracks for playlist {playlist_id}: {response.text}",
+                status_code=response.status_code, response_text=response.text
             )
 
         # Structure output tracks
@@ -316,7 +320,8 @@ class AppleMusicClient(StreamingClient):
         response = self.session.post(endpoint, json=payload)
         if response.status_code == 204:
             return True
-        raise Exception(f"Failed to add tracks: {response.status_code} {response.text}")
+        raise APIError(f"Failed to add tracks: {response.text}",
+                      status_code=response.status_code, response_text=response.text)
 
     def create_playlist(self, name: str, description: str = "") -> str:
         """
@@ -333,7 +338,8 @@ class AppleMusicClient(StreamingClient):
         payload = {"attributes": {"name": name, "description": description}}
         response = self.session.post(endpoint, json=payload)
         if response.status_code not in (201, 202):
-            raise Exception(
-                f"Failed to create playlist: {response.status_code} {response.text}"
+            raise APIError(
+                f"Failed to create playlist: {response.text}",
+                status_code=response.status_code, response_text=response.text
             )
         return response.json()["data"][0]["id"]

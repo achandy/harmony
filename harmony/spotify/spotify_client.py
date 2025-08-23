@@ -278,7 +278,8 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get tracks: {response.text}")
+            raise APIError(f"Failed to get tracks: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         items = response.json().get("items", [])
         return [
