@@ -4,6 +4,7 @@ from urllib.parse import urlencode, urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
+from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
 
 load_dotenv()
 
@@ -70,7 +71,7 @@ class SpotifyClient(StreamingClient):
         client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 
         if not client_id or not client_secret:
-            raise ValueError(
+            raise ConfigurationError(
                 "SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in the .env file"
             )
 
@@ -146,7 +147,7 @@ class SpotifyClient(StreamingClient):
         if not authorization_code:
             error_msg = "Authorization code could not be obtained. Please try again."
             self.logger.error(error_msg)
-            raise Exception(error_msg)
+            raise AuthenticationError(error_msg)
 
         self.logger.info("Spotify authorization code received")
 
@@ -180,7 +181,7 @@ class SpotifyClient(StreamingClient):
             if response.status_code != 200:
                 error_msg = f"Failed to obtain an access token: {response.text}"
                 self.logger.error(error_msg)
-                raise Exception(error_msg)
+                raise AuthenticationError(error_msg)
 
             # Parse the response for the access token
             token_response = response.json()
@@ -188,7 +189,7 @@ class SpotifyClient(StreamingClient):
             if not access_token:
                 error_msg = "Access token is missing in the response."
                 self.logger.error(error_msg)
-                raise Exception(error_msg)
+                raise AuthenticationError(error_msg)
 
             self.logger.info("Successfully obtained Spotify access token")
         except Exception as e:
@@ -229,7 +230,8 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get top {top_type}: {response.text}")
+            raise APIError(f"Failed to get top {top_type}: {response.text}", 
+                          status_code=response.status_code, response_text=response.text)
 
         return response.json().get("items", [])
 
@@ -248,7 +250,8 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise Exception(f"Failed to get playlists: {response.text}")
+            raise APIError(f"Failed to get playlists: {response.text}",
+                          status_code=response.status_code, response_text=response.text)
 
         items = response.json().get("items", [])
         return [
@@ -346,7 +349,8 @@ class SpotifyClient(StreamingClient):
 
         if response.status_code == 201:
             return True
-        raise Exception(f"Failed to add tracks: {response.status_code} {response.text}")
+        raise APIError(f"Failed to add tracks: {response.text}",
+                      status_code=response.status_code, response_text=response.text)
 
     def create_playlist(
         self, name: str, description: str = "", public: bool = True
