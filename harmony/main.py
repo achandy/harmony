@@ -1,3 +1,4 @@
+from typing import List, Tuple, Callable
 from rich.console import Console
 from harmony.tools.logger import Logger
 from harmony.spotify.spotify_client import SpotifyClient
@@ -11,13 +12,13 @@ from harmony.tools.cli_tools import display_menu
 class MainMenu:
     """Handles the main menu for the Harmony CLI."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.console = Console()
         self.logger = Logger("harmony.main")
         self.spotify_client = None
         self.apple_music_client = None
 
-    def _get_menu_options(self):
+    def _get_menu_options(self) -> List[Tuple[str, Callable]]:
         """
         Dynamically generate menu options based on authentication states.
 
@@ -41,31 +42,31 @@ class MainMenu:
 
         return menu_options
 
-    def authenticate_spotify(self):
+    def authenticate_spotify(self) -> None:
         """Authenticate Spotify."""
         self.logger.log_and_print("\nAuthenticating Spotify")
         self.spotify_client = SpotifyClient()
         self.logger.log_and_print("Spotify authentication successful")
 
-    def authenticate_apple_music(self):
+    def authenticate_apple_music(self) -> None:
         """Authenticate Apple Music."""
         self.logger.log_and_print("Starting Apple Music authentication")
         self.apple_music_client = AppleMusicClient()
         self.logger.log_and_print("Apple Music authentication successful")
 
-    def display_spotify_menu(self):
+    def display_spotify_menu(self) -> None:
         """Display Spotify tools menu."""
         SpotifyCLI(self.spotify_client).display_menu()
 
-    def display_apple_music_menu(self):
+    def display_apple_music_menu(self) -> None:
         """Display Apple Music tools menu."""
         AppleMusicCLI(self.apple_music_client).display_menu()
 
-    def display_sync_menu(self):
+    def display_sync_menu(self) -> None:
         """Display the playlist sync menu"""
         PlaylistSyncer(self.spotify_client, self.apple_music_client)
 
-    def display(self):
+    def display(self) -> None:
         """Display the main menu."""
         self.logger.info("Starting Harmony main menu")
         harmony_ascii = r"""
@@ -84,7 +85,7 @@ class MainMenu:
             ascii_art=harmony_ascii,
         )
 
-    def exit_program(self):
+    def exit_program(self) -> None:
         """
         Exit the program entirely.
         """
@@ -93,7 +94,7 @@ class MainMenu:
         exit(0)
 
 
-def main():
+def main() -> None:
     logger = Logger("harmony")
     logger.info("Starting Harmony application")
     try:

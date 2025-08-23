@@ -3,6 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 from rich.console import Console
 from rich.markup import escape
 
@@ -30,7 +31,7 @@ class Logger:
     All loggers write to a single log file with a timestamp in the filename.
     """
 
-    def __init__(self, name=None):
+    def __init__(self, name: Optional[str] = None) -> None:
         """
         Initialize a logger with the given name.
 
@@ -73,27 +74,27 @@ class Logger:
             self._logger.addHandler(file_handler)
             self._logger.addHandler(console_handler)
 
-    def debug(self, message):
+    def debug(self, message: str) -> None:
         """Log a debug message."""
         self._logger.debug(message)
 
-    def info(self, message):
+    def info(self, message: str) -> None:
         """Log an info message."""
         self._logger.info(message)
 
-    def warning(self, message):
+    def warning(self, message: str) -> None:
         """Log a warning message."""
         self._logger.warning(message)
 
-    def error(self, message):
+    def error(self, message: str) -> None:
         """Log an error message."""
         self._logger.error(message)
 
-    def critical(self, message):
+    def critical(self, message: str) -> None:
         """Log a critical message."""
         self._logger.critical(message)
 
-    def log(self, level, message):
+    def log(self, level: int, message: str) -> None:
         """
         Log a message with the specified level.
 
@@ -103,7 +104,7 @@ class Logger:
         """
         self._logger.log(level, message)
 
-    def log_and_print(self, message, level=logging.INFO):
+    def log_and_print(self, message: str, level: int = logging.INFO) -> None:
         """
         Log a message to the log file and print it to the console.
 
