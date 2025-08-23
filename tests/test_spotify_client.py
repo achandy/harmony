@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import responses
 from harmony.spotify.spotify_client import SpotifyClient
-from harmony.exceptions import AuthenticationError, ConfigurationError
+from harmony.exceptions import AuthenticationError
 
 
 @pytest.fixture

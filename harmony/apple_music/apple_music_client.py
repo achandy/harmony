@@ -7,8 +7,8 @@ from urllib.parse import parse_qs
 import webbrowser
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
-from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
-from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC, DEFAULT_TRACK_LIMIT, JWT_EXPIRY_HOURS
+from harmony.exceptions import APIError, ConfigurationError
+from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC, DEFAULT_TRACK_LIMIT, JWT_EXPIRY_HOURS
 
 load_dotenv()
 
