@@ -2,3 +2,15 @@
 .DS_Store
 .idea
 .env
+
+# Virtual environments
+harmony_venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

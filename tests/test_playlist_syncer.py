@@ -243,8 +243,8 @@ def test_process_tracks(playlist_syncer, mock_spotify_client, mock_apple_music_c
         )
 
         # Track 2 is found, Track 3 is not found
-        mock_search.side_effect = (
-            lambda track: "track_2_id" if track[0] == "track 2" else None
+        mock_search.side_effect = lambda track: (
+            "track_2_id" if track[0] == "track 2" else None
         )
 
         # Add logger mock to prevent AttributeError

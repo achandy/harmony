@@ -7,8 +7,15 @@ from urllib.parse import parse_qs
 import webbrowser
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
-from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
-from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC, DEFAULT_TRACK_LIMIT, JWT_EXPIRY_HOURS
+from harmony.exceptions import APIError, ConfigurationError
+from harmony.constants import (
+    LOCALHOST_HOST,
+    LOCALHOST_PORT,
+    DEFAULT_SEARCH_LIMIT,
+    DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC,
+    DEFAULT_TRACK_LIMIT,
+    JWT_EXPIRY_HOURS,
+)
 
 load_dotenv()
 
@@ -145,7 +152,8 @@ class AppleMusicClient(StreamingClient):
         payload = {
             "iss": team_id,
             "iat": int(time.time()),
-            "exp": int(time.time()) + 3600 * JWT_EXPIRY_HOURS,  # Token valid for specified hours
+            "exp": int(time.time())
+            + 3600 * JWT_EXPIRY_HOURS,  # Token valid for specified hours
         }
 
         token = jwt.encode(
@@ -170,8 +178,11 @@ class AppleMusicClient(StreamingClient):
         # Make the API request
         response = self.session.get(endpoint, params=params)
         if response.status_code != 200:
-            raise APIError(f"Failed to get heavy rotation data: {response.text}",
-                          status_code=response.status_code, response_text=response.text)
+            raise APIError(
+                f"Failed to get heavy rotation data: {response.text}",
+                status_code=response.status_code,
+                response_text=response.text,
+            )
 
         # Parse and filter library-albums
         items = response.json().get("data", [])
@@ -184,7 +195,9 @@ class AppleMusicClient(StreamingClient):
             if item["type"] == "library-albums"
         ]
 
-    def get_user_playlists(self, limit: int = DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC) -> list[dict]:
+    def get_user_playlists(
+        self, limit: int = DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC
+    ) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -200,8 +213,11 @@ class AppleMusicClient(StreamingClient):
         # Make the API request
         response = self.session.get(endpoint, params=params)
         if response.status_code != 200:
-            raise APIError(f"Failed to get playlists: {response.text}",
-                          status_code=response.status_code, response_text=response.text)
+            raise APIError(
+                f"Failed to get playlists: {response.text}",
+                status_code=response.status_code,
+                response_text=response.text,
+            )
 
         # Structure output playlists
         items = response.json().get("data", [])
@@ -213,7 +229,9 @@ class AppleMusicClient(StreamingClient):
             for playlist in items
         ]
 
-    def get_playlist_tracks(self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT) -> list[dict]:
+    def get_playlist_tracks(
+        self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT
+    ) -> list[dict]:
         """
         Fetch the tracks from a specific playlist.
 
@@ -240,7 +258,8 @@ class AppleMusicClient(StreamingClient):
         if response.status_code != 200:
             raise APIError(
                 f"Failed to get tracks for playlist {playlist_id}: {response.text}",
-                status_code=response.status_code, response_text=response.text
+                status_code=response.status_code,
+                response_text=response.text,
             )
 
         # Structure output tracks
@@ -320,8 +339,11 @@ class AppleMusicClient(StreamingClient):
         response = self.session.post(endpoint, json=payload)
         if response.status_code == 204:
             return True
-        raise APIError(f"Failed to add tracks: {response.text}",
-                      status_code=response.status_code, response_text=response.text)
+        raise APIError(
+            f"Failed to add tracks: {response.text}",
+            status_code=response.status_code,
+            response_text=response.text,
+        )
 
     def create_playlist(self, name: str, description: str = "") -> str:
         """
@@ -340,6 +362,7 @@ class AppleMusicClient(StreamingClient):
         if response.status_code not in (201, 202):
             raise APIError(
                 f"Failed to create playlist: {response.text}",
-                status_code=response.status_code, response_text=response.text
+                status_code=response.status_code,
+                response_text=response.text,
             )
         return response.json()["data"][0]["id"]
