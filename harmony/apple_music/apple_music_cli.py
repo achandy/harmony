@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
 from rich.console import Console
 from harmony.tools.cli_tools import display_menu, display_submenu
-
-if TYPE_CHECKING:
-    from harmony.apple_music.apple_music_client import AppleMusicClient
+from harmony.apple_music.apple_music_client import AppleMusicClient
 
 
 class AppleMusicCLI:
@@ -12,7 +9,7 @@ class AppleMusicCLI:
     Communicates directly with the AppleMusicClient for operations.
     """
 
-    def __init__(self, apple_music_client: "AppleMusicClient") -> None:
+    def __init__(self, apple_music_client: AppleMusicClient) -> None:
         """
         Initialize the Apple Music CLI.
 

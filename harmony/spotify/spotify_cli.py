@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
 from rich.console import Console
 from harmony.tools.cli_tools import display_menu, display_submenu
-
-if TYPE_CHECKING:
-    from harmony.spotify.spotify_client import SpotifyClient
+from harmony.spotify.spotify_client import SpotifyClient
 
 
 class SpotifyCLI:
@@ -12,7 +9,7 @@ class SpotifyCLI:
     Communicates directly with the SpotifyClient for operations like searching.
     """
 
-    def __init__(self, spotify_client: "SpotifyClient") -> None:
+    def __init__(self, spotify_client: SpotifyClient) -> None:
         """
         Initialize the Spotify CLI.
 
