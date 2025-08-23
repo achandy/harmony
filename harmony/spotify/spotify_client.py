@@ -5,7 +5,14 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
 from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
-from harmony.constants import LOCALHOST_HOST, LOCALHOST_PORT, REDIRECT_URI, DEFAULT_SEARCH_LIMIT, DEFAULT_PLAYLIST_LIMIT_SPOTIFY, DEFAULT_TRACK_LIMIT
+from harmony.constants import (
+    LOCALHOST_HOST,
+    LOCALHOST_PORT,
+    REDIRECT_URI,
+    DEFAULT_SEARCH_LIMIT,
+    DEFAULT_PLAYLIST_LIMIT_SPOTIFY,
+    DEFAULT_TRACK_LIMIT,
+)
 
 load_dotenv()
 
@@ -199,7 +206,10 @@ class SpotifyClient(StreamingClient):
         return access_token
 
     def get_top(
-        self, top_type: str, limit: int = DEFAULT_SEARCH_LIMIT, term: str = "medium_term"
+        self,
+        top_type: str,
+        limit: int = DEFAULT_SEARCH_LIMIT,
+        term: str = "medium_term",
     ) -> list[dict]:
         """
         Get the user's top objects (artists or tracks) from Spotify for a specific time range.
@@ -230,12 +240,17 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise APIError(f"Failed to get top {top_type}: {response.text}", 
-                          status_code=response.status_code, response_text=response.text)
+            raise APIError(
+                f"Failed to get top {top_type}: {response.text}",
+                status_code=response.status_code,
+                response_text=response.text,
+            )
 
         return response.json().get("items", [])
 
-    def get_user_playlists(self, limit: int = DEFAULT_PLAYLIST_LIMIT_SPOTIFY) -> list[dict]:
+    def get_user_playlists(
+        self, limit: int = DEFAULT_PLAYLIST_LIMIT_SPOTIFY
+    ) -> list[dict]:
         """
         Fetch the user's playlists.
 
@@ -250,8 +265,11 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise APIError(f"Failed to get playlists: {response.text}",
-                          status_code=response.status_code, response_text=response.text)
+            raise APIError(
+                f"Failed to get playlists: {response.text}",
+                status_code=response.status_code,
+                response_text=response.text,
+            )
 
         items = response.json().get("items", [])
         return [
@@ -262,7 +280,9 @@ class SpotifyClient(StreamingClient):
             for playlist in items
         ]
 
-    def get_playlist_tracks(self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT) -> list[dict]:
+    def get_playlist_tracks(
+        self, playlist_id: str, limit: int = DEFAULT_TRACK_LIMIT
+    ) -> list[dict]:
         """
         Fetch the tracks from a specific playlist.
 
@@ -278,18 +298,23 @@ class SpotifyClient(StreamingClient):
 
         response = self.session.get(endpoint, headers=self.headers, params=params)
         if response.status_code != 200:
-            raise APIError(f"Failed to get tracks: {response.text}",
-                          status_code=response.status_code, response_text=response.text)
+            raise APIError(
+                f"Failed to get tracks: {response.text}",
+                status_code=response.status_code,
+                response_text=response.text,
+            )
 
         items = response.json().get("items", [])
         return [
             {
                 "name": track["track"].get("name", "Unknown Track"),
-                "artist": ", ".join(
-                    artist["name"] for artist in track["track"].get("artists", [])
-                )
-                if track.get("track")
-                else "Unknown Artist",
+                "artist": (
+                    ", ".join(
+                        artist["name"] for artist in track["track"].get("artists", [])
+                    )
+                    if track.get("track")
+                    else "Unknown Artist"
+                ),
             }
             for track in items
         ]
@@ -350,8 +375,11 @@ class SpotifyClient(StreamingClient):
 
         if response.status_code == 201:
             return True
-        raise APIError(f"Failed to add tracks: {response.text}",
-                      status_code=response.status_code, response_text=response.text)
+        raise APIError(
+            f"Failed to add tracks: {response.text}",
+            status_code=response.status_code,
+            response_text=response.text,
+        )
 
     def create_playlist(
         self, name: str, description: str = "", public: bool = True
