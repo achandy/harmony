@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
 from harmony.exceptions import APIError, ConfigurationError
 from harmony.constants import (
-    LOCALHOST_HOST,
-    LOCALHOST_PORT,
+    CALLBACK_HOST,
+    CALLBACK_PORT,
     DEFAULT_SEARCH_LIMIT,
     DEFAULT_PLAYLIST_LIMIT_APPLE_MUSIC,
     DEFAULT_TRACK_LIMIT,
@@ -65,7 +65,7 @@ class AppleMusicClient(StreamingClient):
 
         # Open the authorization URL in the user's browser
         self.logger.log_and_print("Opening browser for Apple Music authorization")
-        webbrowser.open(f"http://{LOCALHOST_HOST}:{LOCALHOST_PORT}")
+        webbrowser.open(f"http://{CALLBACK_HOST}:{CALLBACK_PORT}")
 
         class CallbackHandler(BaseHTTPRequestHandler):
             """Handles HTTP requests for the local authentication server."""
@@ -111,7 +111,7 @@ class AppleMusicClient(StreamingClient):
                 )
 
         self.logger.log_and_print("Waiting for Apple Music authorization callback")
-        httpd = HTTPServer((LOCALHOST_HOST, LOCALHOST_PORT), CallbackHandler)
+        httpd = HTTPServer((CALLBACK_HOST, CALLBACK_PORT), CallbackHandler)
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
 
