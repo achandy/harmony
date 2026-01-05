@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from harmony.tools.streaming_client import StreamingClient
 from harmony.exceptions import AuthenticationError, APIError, ConfigurationError
 from harmony.constants import (
-    LOCALHOST_HOST,
-    LOCALHOST_PORT,
+    CALLBACK_HOST,
+    CALLBACK_PORT,
     REDIRECT_URI,
     DEFAULT_SEARCH_LIMIT,
     DEFAULT_PLAYLIST_LIMIT_SPOTIFY,
@@ -146,7 +146,7 @@ class SpotifyClient(StreamingClient):
                     self.wfile.write(b"Authorization failed!")
 
         self.logger.log_and_print("Waiting for Spotify authorization...")
-        httpd = HTTPServer((LOCALHOST_HOST, LOCALHOST_PORT), CallbackHandler)
+        httpd = HTTPServer((CALLBACK_HOST, CALLBACK_PORT), CallbackHandler)
         httpd.handle_request()  # Wait for a single authorization request (blocking)
 
         # Retrieve the authorization code from the HTTP handler

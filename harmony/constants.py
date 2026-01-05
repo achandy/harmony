@@ -7,9 +7,9 @@ throughout the codebase.
 """
 
 # Server Configuration
-LOCALHOST_PORT = 8888
-LOCALHOST_HOST = "localhost"
-REDIRECT_URI = f"http://{LOCALHOST_HOST}:{LOCALHOST_PORT}/callback"
+CALLBACK_PORT = 8888
+CALLBACK_HOST = "127.0.0.1"
+REDIRECT_URI = f"http://{CALLBACK_HOST}:{CALLBACK_PORT}/callback"
 
 # API Limits - Default values for API requests
 DEFAULT_SEARCH_LIMIT = 10

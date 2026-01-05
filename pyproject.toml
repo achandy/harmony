@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "harmony"
-version = "0.1.0"
+version = "0.1.1"
 description = "A CLI app to interact with Spotify and Apple Music"
 authors = [
     { name = "Allan", email = "chandyallan@gmail.com" }
